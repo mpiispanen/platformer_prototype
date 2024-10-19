@@ -1,7 +1,13 @@
 #include <SDL2/SDL.h>
 #include <iostream>
 #include <string>
+
+#ifdef _WIN32
+#include <windows.h>
+#include "getopt.h" // Ensure you have a getopt implementation for Windows
+#else
 #include <unistd.h>
+#endif
 
 int main(int argc, char *argv[])
 {
