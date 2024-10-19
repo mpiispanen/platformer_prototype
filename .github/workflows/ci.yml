@@ -16,8 +16,24 @@ jobs:
     - name: Set up CMake
       uses: lukka/get-cmake@latest
 
+    - name: Cache CMake build directory
+      uses: actions/cache@v2
+      with:
+        path: build/
+        key: ${{ runner.os }}-cmake-build-${{ hashFiles('**/CMakeLists.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-cmake-build-
+
     - name: Install SDL2
       uses: libsdl-org/setup-sdl@v1
+
+    - name: Cache SDL2 build directory
+      uses: actions/cache@v2
+      with:
+        path: ${{ runner.os }}-sdl2-build/
+        key: ${{ runner.os }}-sdl2-build-${{ hashFiles('**/CMakeLists.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-sdl2-build-
 
     - name: Configure CMake
       run: cmake -B build -S .
