@@ -19,6 +19,9 @@ jobs:
     - name: Install SDL2
       uses: libsdl-org/setup-sdl@main
 
+    - name: Set SDL2_DIR environment variable
+      run: echo "SDL2_DIR=$(sdl2-config --prefix)/lib/cmake/SDL2" >> $GITHUB_ENV
+
     - name: Configure CMake
       run: cmake -B build -S .
 
