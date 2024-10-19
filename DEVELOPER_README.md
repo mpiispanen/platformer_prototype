@@ -59,3 +59,26 @@ During initialization and other critical parts of the application, we use the fo
 3. Display appropriate error messages to the user, indicating that the initialization has failed.
 4. Ensure that any resources allocated during initialization are properly cleaned up in case of an error.
 5. Exit the application gracefully if an error occurs during initialization.
+
+## Continuous Integration (CI) Setup
+
+We have set up continuous integration using Github Actions for CMake builds on multiple platforms (Ubuntu, macOS, Windows). The CI workflow is defined in the `.github/workflows/ci.yml` file.
+
+### Viewing Build Results
+
+To view the build results, follow these steps:
+
+1. Go to the repository on Github.
+2. Click on the "Actions" tab.
+3. You will see a list of workflow runs. Click on the workflow run you are interested in.
+4. You can view the details of the build, including the build logs and test results.
+
+### Downloading Build Artifacts
+
+To download the build artifacts, follow these steps:
+
+1. Go to the repository on Github.
+2. Click on the "Actions" tab.
+3. You will see a list of workflow runs. Click on the workflow run you are interested in.
+4. In the workflow run details, you will find a section for "Artifacts". Click on the artifact you want to download.
+5. The artifact will be downloaded as a zip file. Extract the zip file to access the build artifacts.
