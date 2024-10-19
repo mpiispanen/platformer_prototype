@@ -16,27 +16,8 @@ jobs:
     - name: Set up CMake
       uses: lukka/get-cmake@latest
 
-    - name: Cache CMake build directory
-      uses: actions/cache@v2
-      with:
-        path: build/
-        key: ${{ runner.os }}-cmake-build-${{ hashFiles('**/CMakeLists.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-cmake-build-
-
     - name: Install SDL2
       uses: libsdl-org/setup-sdl@main
-
-    - name: Cache SDL2 build directory
-      uses: actions/cache@v2
-      with:
-        path: ${{ runner.os }}-sdl2-build/
-        key: ${{ runner.os }}-sdl2-build-${{ hashFiles('**/CMakeLists.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-sdl2-build-
-
-    - name: Set SDL2_DIR environment variable
-      run: echo "SDL2_DIR=$(sdl2-config --prefix)/lib/cmake/SDL2" >> $GITHUB_ENV
 
     - name: Configure CMake
       run: cmake -B build -S .
