@@ -35,6 +35,9 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-sdl2-build-
 
+    - name: Set SDL2_DIR environment variable
+      run: echo "SDL2_DIR=$(sdl2-config --prefix)/lib/cmake/SDL2" >> $GITHUB_ENV
+
     - name: Configure CMake
       run: cmake -B build -S .
 
