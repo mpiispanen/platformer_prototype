@@ -53,3 +53,18 @@ if(ENABLE_CLANG_TIDY)
     COMMENT "Running clang-tidy"
   )
 endif()
+
+# Find Google Test package
+find_package(GTest REQUIRED)
+
+# Enable testing
+enable_testing()
+
+# Add test executable
+add_executable(runUnitTests tests/test_main.cpp)
+
+# Link Google Test libraries
+target_link_libraries(runUnitTests GTest::GTest GTest::Main)
+
+# Register the test
+add_test(NAME runUnitTests COMMAND runUnitTests)
