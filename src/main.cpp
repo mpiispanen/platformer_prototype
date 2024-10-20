@@ -10,7 +10,6 @@ int main(int argc, char *argv[])
     int windowHeight = 600;
     bool fullscreen = false;
 
-    // Parse command-line arguments using cxxopts
     try
     {
         cxxopts::Options options(argv[0], "Platformer Prototype");
@@ -28,7 +27,7 @@ int main(int argc, char *argv[])
             return 0;
         }
     }
-    catch (const cxxopts::OptionException &e)
+    catch (const cxxopts::exceptions::exception &e)
     {
         std::cerr << "Error parsing options: " << e.what() << std::endl;
         return 1;
