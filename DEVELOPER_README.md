@@ -59,3 +59,7 @@ During initialization and other critical parts of the application, we use the fo
 3. Display appropriate error messages to the user, indicating that the initialization has failed.
 4. Ensure that any resources allocated during initialization are properly cleaned up in case of an error.
 5. Exit the application gracefully if an error occurs during initialization.
+
+## Application Usage
+
+For information on what the application does and how to use it, please refer to the `README.md` file.
