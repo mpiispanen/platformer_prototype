@@ -43,3 +43,13 @@ endif()
 if(ENABLE_CLANG_TIDY)
   set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
 endif()
+
+# Add a custom target for running clang-tidy
+if(ENABLE_CLANG_TIDY)
+  add_custom_target(clang-tidy
+    COMMAND ${CMAKE_COMMAND} -E echo "Running clang-tidy"
+    COMMAND clang-tidy ${SOURCE_FILES} --
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMENT "Running clang-tidy"
+  )
+endif()
