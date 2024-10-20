@@ -1,7 +1,7 @@
 #include <SDL2/SDL.h>
 #include <iostream>
 #include <string>
-#include <unistd.h>
+#include <cxxopts.hpp>
 
 int main(int argc, char *argv[])
 {
@@ -10,25 +10,27 @@ int main(int argc, char *argv[])
     int windowHeight = 600;
     bool fullscreen = false;
 
-    // Parse command-line arguments
-    int opt;
-    while ((opt = getopt(argc, argv, "w:h:f")) != -1)
+    try
     {
-        switch (opt)
+        cxxopts::Options options(argv[0], "Platformer Prototype");
+        options.add_options()
+            ("w,width", "Window width", cxxopts::value<int>(windowWidth)->default_value("800"))
+            ("h,height", "Window height", cxxopts::value<int>(windowHeight)->default_value("600"))
+            ("f,fullscreen", "Fullscreen mode", cxxopts::value<bool>(fullscreen)->default_value("false"))
+            ("help", "Print help");
+
+        auto result = options.parse(argc, argv);
+
+        if (result.count("help"))
         {
-        case 'w':
-            windowWidth = std::stoi(optarg);
-            break;
-        case 'h':
-            windowHeight = std::stoi(optarg);
-            break;
-        case 'f':
-            fullscreen = true;
-            break;
-        default:
-            std::cerr << "Usage: " << argv[0] << " [-w width] [-h height] [-f fullscreen]" << std::endl;
-            return 1;
+            std::cout << options.help() << std::endl;
+            return 0;
         }
+    }
+    catch (const cxxopts::exceptions::exception &e)
+    {
+        std::cerr << "Error parsing options: " << e.what() << std::endl;
+        return 1;
     }
 
     // Initialize SDL2
