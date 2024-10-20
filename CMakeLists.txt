@@ -22,9 +22,3 @@ set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release")
 # Add compiler flags for debug and release builds
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
-
-# Specify the path to the SDL2 library and include directories using CMAKE_PREFIX_PATH
-set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${SDL2_DIR})
-
-# Add cxxopts as a dependency
-include_directories(external/cxxopts/include)
