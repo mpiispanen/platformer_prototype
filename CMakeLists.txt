@@ -1,10 +1,7 @@
 cmake_policy(SET CMP0074 NEW)
+
 cmake_minimum_required(VERSION 3.10)
 project(platformer_prototype)
-
-# Find SDL2 package
-find_package(SDL2 REQUIRED)
-include_directories(${SDL2_INCLUDE_DIRS})
 
 # Define source files
 set(SOURCE_FILES src/main.cpp)
@@ -12,8 +9,6 @@ set(SOURCE_FILES src/main.cpp)
 # Add executable target
 add_executable(platformer_prototype ${SOURCE_FILES})
 
-# Link SDL2 library
-target_link_libraries(platformer_prototype ${SDL2_LIBRARIES})
 
 # Include build type options for debug and release builds
 set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build (Debug or Release)" FORCE)
@@ -25,3 +20,8 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 
 # Include cxxopts headers
 include_directories(external/cxxopts/include)
+
+# Add SDL2 submodule
+add_subdirectory(external/SDL2)
+include_directories(external/SDL2/include)
+target_link_libraries(platformer_prototype SDL2)
