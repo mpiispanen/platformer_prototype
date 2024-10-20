@@ -63,3 +63,30 @@ During initialization and other critical parts of the application, we use the fo
 ## Application Usage
 
 For information on what the application does and how to use it, please refer to the `README.md` file.
+
+## Updating Submodules
+
+To ensure that submodules are updated, follow these steps:
+
+1. Add the `submodules: true` option to the `actions/checkout` action in your GitHub Actions workflow file.
+2. Ensure that the `.gitmodules` file is properly configured with the correct submodule URLs and paths.
+3. Verify that the submodules are correctly initialized and updated in your local repository by running the following commands:
+   ```
+   git submodule init
+   git submodule update
+   ```
+4. If you encounter any issues with submodules, check the `.git/config` file to ensure that the submodule URLs and paths are correctly configured.
+
+## Continuous Integration using GitHub Actions
+
+We have set up continuous integration using GitHub Actions for our commits. The workflow is configured to use `actions/checkout@v3` and `actions/upload-artifact@v4` with submodules updated. The workflow includes steps to build the project using CMake and run tests on multiple platforms (e.g., Ubuntu, macOS, Windows).
+
+The workflow file `.github/workflows/ci.yml` includes the following steps:
+
+1. Checkout the repository with `submodules: true` option.
+2. Set up the required dependencies (e.g., SDL2, CMake).
+3. Build the project using CMake.
+4. Run tests to ensure the build is successful.
+5. Upload build artifacts using `actions/upload-artifact@v4`.
+
+The workflow is triggered on push and pull request events to the main branch.

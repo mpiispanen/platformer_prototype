@@ -77,3 +77,7 @@ If you encounter any issues while running the application, please check the foll
 2. Verify that your system meets the minimum requirements for running the application.
 3. Check the console output for any error messages and follow the instructions provided.
 4. If the issue persists, please open an issue on the project's GitHub repository with a detailed description of the problem.
+
+## Build Status
+
+![Build Status](https://github.com/mpiispanen/platformer_prototype/actions/workflows/ci.yml/badge.svg)
