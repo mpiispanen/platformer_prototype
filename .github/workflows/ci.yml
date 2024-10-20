@@ -152,6 +152,9 @@ jobs:
         name: build-artifacts-linux
         path: linux/build
 
+    - name: Set up SDL
+      uses: libsdl-org/setup-sdl@main
+
     - name: Set up gcov
       run: sudo apt-get install -y gcov
 
