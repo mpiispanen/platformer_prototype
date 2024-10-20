@@ -48,7 +48,7 @@ endif()
 if(ENABLE_CLANG_TIDY)
   add_custom_target(clang-tidy
     COMMAND ${CMAKE_COMMAND} -E echo "Running clang-tidy"
-    COMMAND clang-tidy ${SOURCE_FILES} -- -header-filter='^(?!.*external/SDL2).*'
+    COMMAND clang-tidy ${SOURCE_FILES} -- 
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Running clang-tidy"
   )
