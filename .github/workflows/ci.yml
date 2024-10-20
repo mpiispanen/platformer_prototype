@@ -22,8 +22,7 @@ jobs:
           submodules: true
 
       - name: Set up SDL2
-        uses: EtienneLamoureux/setup-sdl@v1
-
+        uses: libsdl-org/setup-sdl@main
 
       - name: Configure CMake
         run: cmake -B build -S .
