@@ -31,7 +31,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: build-artifacts
-        path: build
+        path: build/linux
 
   build-macos:
     runs-on: macos-latest
@@ -61,7 +61,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: build-artifacts
-        path: build
+        path: build/macos
 
   build-windows:
     runs-on: windows-latest
@@ -91,4 +91,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: build-artifacts
-        path: build
+        path: build/windows
