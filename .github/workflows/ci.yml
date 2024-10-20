@@ -92,3 +92,72 @@ jobs:
       with:
         name: build-artifacts
         path: build/windows
+
+  static-analysis:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        submodules: true
+
+    - name: Update submodules
+      run: git submodule update --init --recursive
+
+    - name: Set up clang-tidy
+      run: sudo apt-get install -y clang-tidy
+
+    - name: Set up cppcheck
+      run: sudo apt-get install -y cppcheck
+
+    - name: Configure CMake with clang-tidy and cppcheck
+      run: cmake -B build -S . -DENABLE_CLANG_TIDY=ON -DENABLE_CPPCHECK=ON
+
+    - name: Run clang-tidy
+      run: cmake --build build --target clang-tidy
+
+    - name: Run cppcheck
+      run: cmake --build build --target cppcheck
+
+    - name: Upload static analysis results
+      uses: actions/upload-artifact@v4
+      with:
+        name: static-analysis-results
+        path: build
+
+  code-coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        submodules: true
+
+    - name: Update submodules
+      run: git submodule update --init --recursive
+
+    - name: Set up gcov
+      run: sudo apt-get install -y gcov
+
+    - name: Set up lcov
+      run: sudo apt-get install -y lcov
+
+    - name: Configure CMake with code coverage
+      run: cmake -B build -S . -DENABLE_COVERAGE=ON
+
+    - name: Build with code coverage
+      run: cmake --build build
+
+    - name: Run tests
+      run: ctest --output-on-failure
+
+    - name: Generate coverage report
+      run: lcov --capture --directory . --output-file coverage.info
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report
+        path: coverage.info
