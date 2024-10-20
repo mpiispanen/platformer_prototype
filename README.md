@@ -1,5 +1,7 @@
 # Platformer Prototype
 
+![Build Status](https://github.com/mpiispanen/platformer_prototype/actions/workflows/ci.yml/badge.svg)
+
 ## Description
 
 Platformer Prototype is a simple platformer game built using SDL2. The game allows players to control a character and navigate through a 2D environment. The purpose of this project is to demonstrate the use of SDL2 for game development and provide a starting point for building more complex games.

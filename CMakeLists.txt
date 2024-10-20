@@ -24,3 +24,6 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 
 # Include cxxopts headers
 include_directories(external/cxxopts/include)
+
+# Add SDL submodule
+add_subdirectory(external/SDL)
