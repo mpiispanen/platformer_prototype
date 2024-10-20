@@ -21,8 +21,9 @@ jobs:
         with:
           submodules: true
 
-      - name: Set up SDL2
-        uses: libsdl-org/setup-sdl@main
+      - name: Manually update and verify submodules
+        run: git submodule update --init --recursive
+
 
       - name: Configure CMake
         run: cmake -B build -S .

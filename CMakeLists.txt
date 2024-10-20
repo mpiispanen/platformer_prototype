@@ -9,7 +9,6 @@ set(SOURCE_FILES src/main.cpp)
 # Add executable target
 add_executable(platformer_prototype ${SOURCE_FILES})
 
-
 # Include build type options for debug and release builds
 set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build (Debug or Release)" FORCE)
 set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release")
@@ -25,3 +24,6 @@ include_directories(external/cxxopts/include)
 add_subdirectory(external/SDL2)
 include_directories(external/SDL2/include)
 target_link_libraries(platformer_prototype SDL2)
+
+# Find SDL2 package
+find_package(SDL2 REQUIRED)
