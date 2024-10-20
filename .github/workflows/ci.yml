@@ -95,7 +95,6 @@ jobs:
 
   static-analysis:
     runs-on: ubuntu-latest
-    needs: build-linux
 
     steps:
     - name: Checkout repository
@@ -106,11 +105,8 @@ jobs:
     - name: Update submodules
       run: git submodule update --init --recursive
 
-    - name: Download build artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: build-artifacts-linux
-        path: linux/build
+    - name: Set up SDL
+      uses: libsdl-org/setup-sdl@main
 
     - name: Set up clang-tidy
       run: sudo apt-get install -y clang-tidy
@@ -135,7 +131,6 @@ jobs:
 
   code-coverage:
     runs-on: ubuntu-latest
-    needs: build-linux
 
     steps:
     - name: Checkout repository
@@ -146,20 +141,11 @@ jobs:
     - name: Update submodules
       run: git submodule update --init --recursive
 
-    - name: Download build artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: build-artifacts-linux
-        path: linux/build
-
     - name: Set up SDL
       uses: libsdl-org/setup-sdl@main
 
-    - name: Set up gcov
-      run: sudo apt-get install -y gcov
-
-    - name: Set up lcov
-      run: sudo apt-get install -y lcov
+    - name: Set up llvm-cov
+      run: sudo apt-get install -y llvm
 
     - name: Configure CMake with code coverage
       run: cmake -B build -S . -DENABLE_COVERAGE=ON
@@ -171,7 +157,7 @@ jobs:
       run: ctest --output-on-failure
 
     - name: Generate coverage report
-      run: lcov --capture --directory . --output-file coverage.info
+      run: llvm-cov gcov -o . build/*.o
 
     - name: Upload coverage report
       uses: actions/upload-artifact@v4
