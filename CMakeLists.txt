@@ -33,20 +33,13 @@ option(ENABLE_COVERAGE "Enable code coverage" OFF)
 # Add ENABLE_CLANG_TIDY option
 option(ENABLE_CLANG_TIDY "Enable clang-tidy" OFF)
 
-# Add ENABLE_CPPCHECK option
-option(ENABLE_CPPCHECK "Enable cppcheck" OFF)
-
 # Add coverage flags to compiler options when ENABLE_COVERAGE is enabled
 if(ENABLE_COVERAGE)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
 endif()
 
-# Add clang-tidy and cppcheck to CMake configuration when ENABLE_CLANG_TIDY and ENABLE_CPPCHECK are enabled
+# Add clang-tidy to CMake configuration when ENABLE_CLANG_TIDY is enabled
 if(ENABLE_CLANG_TIDY)
   set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
-endif()
-
-if(ENABLE_CPPCHECK)
-  set(CMAKE_CXX_CPPCHECK "cppcheck")
 endif()

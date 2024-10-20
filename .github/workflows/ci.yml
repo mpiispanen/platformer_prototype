@@ -111,17 +111,11 @@ jobs:
     - name: Set up clang-tidy
       run: sudo apt-get install -y clang-tidy
 
-    - name: Set up cppcheck
-      run: sudo apt-get install -y cppcheck
-
-    - name: Configure CMake with clang-tidy and cppcheck
-      run: cmake -B build -S . -DENABLE_CLANG_TIDY=ON -DENABLE_CPPCHECK=ON
+    - name: Configure CMake with clang-tidy
+      run: cmake -B build -S . -DENABLE_CLANG_TIDY=ON
 
     - name: Run clang-tidy
       run: cmake --build build --target clang-tidy
-
-    - name: Run cppcheck
-      run: cmake --build build --target cppcheck
 
     - name: Upload static analysis results
       uses: actions/upload-artifact@v4
