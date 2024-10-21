@@ -14,8 +14,8 @@ protected:
 
 TEST_F(ErrorHandlingTest, SDLInitializationFailure) {
     // Simulate SDL_Init failure
-    EXPECT_CALL(MockSDL, SDL_Init(SDL_INIT_VIDEO))
-        .WillOnce(Return(-1));
+    EXPECT_CALL(*mock_sdl, SDL_Init(SDL_INIT_VIDEO))
+        .WillOnce(testing::Return(-1));
 
     // Capture the error message
     testing::internal::CaptureStderr();
@@ -29,10 +29,10 @@ TEST_F(ErrorHandlingTest, SDLInitializationFailure) {
 
 TEST_F(ErrorHandlingTest, WindowCreationFailure) {
     // Simulate SDL_CreateWindow failure
-    EXPECT_CALL(MockSDL, SDL_Init(SDL_INIT_VIDEO))
-        .WillOnce(Return(0));
-    EXPECT_CALL(MockSDL, SDL_CreateWindow(_, _, _, _, _, _))
-        .WillOnce(Return(nullptr));
+    EXPECT_CALL(*mock_sdl, SDL_Init(SDL_INIT_VIDEO))
+        .WillOnce(testing::Return(0));
+    EXPECT_CALL(*mock_sdl, SDL_CreateWindow(testing::_, testing::_, testing::_, testing::_, testing::_, testing::_))
+        .WillOnce(testing::Return(nullptr));
 
     // Capture the error message
     testing::internal::CaptureStderr();
@@ -46,12 +46,12 @@ TEST_F(ErrorHandlingTest, WindowCreationFailure) {
 
 TEST_F(ErrorHandlingTest, RendererCreationFailure) {
     // Simulate SDL_CreateRenderer failure
-    EXPECT_CALL(MockSDL, SDL_Init(SDL_INIT_VIDEO))
-        .WillOnce(Return(0));
-    EXPECT_CALL(MockSDL, SDL_CreateWindow(_, _, _, _, _, _))
-        .WillOnce(Return(reinterpret_cast<SDL_Window*>(1)));
-    EXPECT_CALL(MockSDL, SDL_CreateRenderer(_, _, _))
-        .WillOnce(Return(nullptr));
+    EXPECT_CALL(*mock_sdl, SDL_Init(SDL_INIT_VIDEO))
+        .WillOnce(testing::Return(0));
+    EXPECT_CALL(*mock_sdl, SDL_CreateWindow(testing::_, testing::_, testing::_, testing::_, testing::_, testing::_))
+        .WillOnce(testing::Return(reinterpret_cast<SDL_Window*>(1)));
+    EXPECT_CALL(*mock_sdl, SDL_CreateRenderer(testing::_, testing::_, testing::_))
+        .WillOnce(testing::Return(nullptr));
 
     // Capture the error message
     testing::internal::CaptureStderr();
@@ -61,4 +61,9 @@ TEST_F(ErrorHandlingTest, RendererCreationFailure) {
     // Verify the error message and return code
     EXPECT_EQ(result, 1);
     EXPECT_NE(output.find("Failed to create renderer"), std::string::npos);
+}
+
+int main(int argc, char **argv) {
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }
