@@ -17,7 +17,7 @@ public:
     MOCK_METHOD(const char*, SDL_GetError, (), ());
 };
 
-extern MockSDL* mock_sdl;
+MockSDL* mock_sdl = nullptr;
 
 #define SDL_Init(flags) mock_sdl->SDL_Init(flags)
 #define SDL_Quit() mock_sdl->SDL_Quit()

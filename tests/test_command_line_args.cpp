@@ -52,3 +52,8 @@ TEST(CommandLineArgsTest, HelpMessage) {
 
     EXPECT_TRUE(result.count("help"));
 }
+
+int main(int argc, char **argv) {
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
+}

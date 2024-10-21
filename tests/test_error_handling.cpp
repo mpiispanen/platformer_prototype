@@ -5,10 +5,13 @@ class ErrorHandlingTest : public ::testing::Test {
 protected:
     void SetUp() override {
         // Set up any necessary resources for the tests
+        mock_sdl = new MockSDL();
     }
 
     void TearDown() override {
         // Clean up any resources used in the tests
+        delete mock_sdl;
+        mock_sdl = nullptr;
     }
 };
 

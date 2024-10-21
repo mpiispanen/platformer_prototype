@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <cxxopts.hpp>
+#include <stdexcept>
 
 #ifdef UNIT_TEST
 #include "mock_sdl.h"
@@ -43,7 +44,7 @@ int main(int argc, char *argv[])
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
         std::cerr << "Failed to initialize SDL2: " << SDL_GetError() << std::endl;
-        return 1;
+        throw std::runtime_error("Failed to initialize SDL2");
     }
 
     // Create the application window
@@ -57,7 +58,7 @@ int main(int argc, char *argv[])
     {
         std::cerr << "Failed to create window: " << SDL_GetError() << std::endl;
         SDL_Quit();
-        return 1;
+        throw std::runtime_error("Failed to create window");
     }
 
     // Create a renderer
@@ -67,7 +68,7 @@ int main(int argc, char *argv[])
         std::cerr << "Failed to create renderer: " << SDL_GetError() << std::endl;
         SDL_DestroyWindow(window);
         SDL_Quit();
-        return 1;
+        throw std::runtime_error("Failed to create renderer");
     }
 
     // Main game loop

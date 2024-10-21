@@ -31,3 +31,8 @@ TEST(BuildOptionsTest, CustomTargets) {
     EXPECT_TRUE(clangTidyTarget);
     EXPECT_TRUE(coverageTarget);
 }
+
+int main(int argc, char **argv) {
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
+}
