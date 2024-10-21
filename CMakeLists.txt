@@ -60,6 +60,7 @@ add_subdirectory(external/googletest)
 # Enable testing
 enable_testing()
 
+
 # Add test executable
 add_executable(runTests tests/test_main.cpp)
 
