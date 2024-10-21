@@ -67,3 +67,6 @@ target_link_libraries(runTests gtest gtest_main)
 
 # Add test target
 add_test(NAME runTests COMMAND runTests)
+
+# Add gtest_force_shared_crt setting
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
