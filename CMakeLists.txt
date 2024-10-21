@@ -53,3 +53,24 @@ if(ENABLE_CLANG_TIDY)
     COMMENT "Running clang-tidy"
   )
 endif()
+
+# Fetch Google Test
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/refs/tags/release-1.11.0.zip
+)
+FetchContent_MakeAvailable(googletest)
+
+# Enable testing
+enable_testing()
+
+# Add test executable
+add_executable(tests tests/test_main.cpp)
+
+# Link Google Test to test target
+target_link_libraries(tests gtest_main)
+
+# Discover tests
+include(GoogleTest)
+gtest_discover_tests(tests)
