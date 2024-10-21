@@ -21,7 +21,11 @@ set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build (Debug or Rele
 set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release")
 
 # Add compiler flags for debug and release builds
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
+if(MSVC)
+  set(CMAKE_CXX_FLAGS_DEBUG_INIT "/Zi")
+else()
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
+endif()
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 
 # Include cxxopts headers
@@ -59,7 +63,6 @@ add_subdirectory(external/googletest)
 
 # Enable testing
 enable_testing()
-
 
 # Add test executable
 add_executable(runTests tests/test_main.cpp)
