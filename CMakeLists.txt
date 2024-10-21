@@ -72,3 +72,12 @@ target_link_libraries(runTests gtest gtest_main)
 
 # Add test target
 add_test(NAME runTests COMMAND runTests)
+
+# Set compiler-specific flags for debug builds
+if(MSVC)
+  set(CMAKE_CXX_FLAGS_DEBUG_INIT "/Zi")
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+else()
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
+endif()
