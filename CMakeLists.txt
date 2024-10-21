@@ -75,3 +75,6 @@ target_link_libraries(runTests gtest gtest_main)
 
 # Add test target
 add_test(NAME runTests COMMAND runTests)
+
+# Include gmock headers
+include_directories(external/googletest/googlemock/include)
