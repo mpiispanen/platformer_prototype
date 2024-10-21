@@ -65,8 +65,11 @@ add_executable(runTests tests/test_main.cpp)
 # Link Google Test libraries
 target_link_libraries(runTests gtest gtest_main)
 
-# Add test target
-add_test(NAME runTests COMMAND runTests)
+# Include GoogleTest module
+include(GoogleTest)
+
+# Automatically discover and register tests
+gtest_discover_tests(runTests)
 
 # Add gtest_force_shared_crt setting
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
