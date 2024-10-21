@@ -1,0 +1,6 @@
+{
+  "tasks": {
+    "test": "mkdir -p build && cd build && cmake .. && make && ctest --output-on-failure",
+    "build": "mkdir -p build && cd build && cmake .. && make ; g++ -o platformer_prototype src/main.cpp -lSDL2"
+  }
+}
