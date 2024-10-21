@@ -3,6 +3,12 @@
 #include <string>
 #include <cxxopts.hpp>
 
+#ifdef UNIT_TEST
+#include "mock_sdl.h"
+#else
+#include <SDL2/SDL.h>
+#endif
+
 int main(int argc, char *argv[])
 {
     // Default window size

@@ -63,3 +63,26 @@ During initialization and other critical parts of the application, we use the fo
 ## Application Usage
 
 For information on what the application does and how to use it, please refer to the `README.md` file.
+
+## Running Tests
+
+To run the tests for the project, follow these steps:
+
+1. Build the project with the tests enabled:
+   ```
+   mkdir build
+   cd build
+   cmake -DENABLE_TESTING=ON ..
+   make
+   ```
+
+2. Run the tests using CTest:
+   ```
+   ctest --output-on-failure
+   ```
+
+The tests cover the following areas:
+
+- Command-line argument parsing
+- Error handling
+- Configuration and build options

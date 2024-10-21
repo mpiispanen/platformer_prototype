@@ -53,3 +53,25 @@ if(ENABLE_CLANG_TIDY)
     COMMENT "Running clang-tidy"
   )
 endif()
+
+# Add Google Test subdirectory
+add_subdirectory(external/googletest)
+
+# Enable testing
+enable_testing()
+
+# Add test files
+set(TEST_FILES
+  tests/test_command_line_args.cpp
+  tests/test_error_handling.cpp
+  tests/test_build_options.cpp
+)
+
+# Add test executable
+add_executable(runTests ${TEST_FILES})
+
+# Link Google Test libraries
+target_link_libraries(runTests gtest gtest_main)
+
+# Add test target
+add_test(NAME runTests COMMAND runTests)
