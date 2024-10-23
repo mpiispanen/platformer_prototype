@@ -47,10 +47,9 @@
             ],
             "group": {
                 "kind": "build",
-                "isDefault": true
+                "isDefault": false
             },
-            "dependsOn": "CMake Build Debug",
-            "problemMatcher": []
+            "problemMatcher": ["$gcc"]
         },
         {
             "label": "Build Release",

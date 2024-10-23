@@ -19,7 +19,6 @@
 *.log
 
 # IDE and editor folders
-.vscode/
 .idea/
 *.sln
 *.vcxproj
