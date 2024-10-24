@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <cxxopts.hpp>
+#include <box2d/box2d.h>
 
 int main(int argc, char *argv[])
 {
@@ -64,6 +65,10 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    b2WorldDef worldDef = b2DefaultWorldDef();
+    worldDef.gravity = b2Vec2{0.0f, -10.0f};
+    b2WorldId worldId = b2CreateWorld(&worldDef);
+
     // Main game loop
     bool running = true;
     while (running)
@@ -99,6 +104,9 @@ int main(int argc, char *argv[])
         }
 
         // Update game logic here
+        float timeStep = 1.0f / 60.0f;
+        int subStepCount = 4;
+        b2World_Step(worldId, timeStep, subStepCount);
 
         // Render the game
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
