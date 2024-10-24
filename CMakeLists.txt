@@ -7,14 +7,23 @@ project(platformer_prototype)
 find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
 
+# Include cxxopts headers
+include_directories(external/cxxopts/include)
+
+# Include Box2D headers
+include_directories(external/box2d/include)
+
+# Add Box2D directory
+add_subdirectory(external/box2d)
+
 # Define source files
 set(SOURCE_FILES src/main.cpp)
 
 # Add executable target
 add_executable(platformer_prototype ${SOURCE_FILES})
 
-# Link SDL2 library
-target_link_libraries(platformer_prototype ${SDL2_LIBRARIES})
+# Link SDL2 and Box2D libraries
+target_link_libraries(platformer_prototype box2d ${SDL2_LIBRARIES})
 
 # Include build type options for debug and release builds
 set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build (Debug or Release)" FORCE)
@@ -23,9 +32,6 @@ set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release")
 # Add compiler flags for debug and release builds
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
-
-# Include cxxopts headers
-include_directories(external/cxxopts/include)
 
 # Add ENABLE_CLANG_TIDY option
 option(ENABLE_CLANG_TIDY "Enable clang-tidy" OFF)
@@ -39,15 +45,8 @@ endif()
 if(ENABLE_CLANG_TIDY)
   add_custom_target(clang-tidy
     COMMAND ${CMAKE_COMMAND} -E echo "Running clang-tidy"
-    COMMAND clang-tidy ${SOURCE_FILES} -- -I${SDL2_INCLUDE_DIRS} -Iexternal/cxxopts/include
+    COMMAND clang-tidy ${SOURCE_FILES} -- -I${SDL2_INCLUDE_DIRS} -Iexternal/cxxopts/include -Iexternal/box2d/include
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Running clang-tidy"
   )
 endif()
-
-# Add Box2D include directory
-include_directories(external/box2d/include)
-
-# Link Box2D library
-add_subdirectory(external/box2d)
-target_link_libraries(platformer_prototype box2d)

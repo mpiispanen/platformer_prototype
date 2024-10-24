@@ -8,6 +8,7 @@
             "args": [
                 "-DCMAKE_BUILD_TYPE=Debug",
                 "-DCMAKE_CXX_STANDARD=20",
+                "-DENABLE_CLANG_TIDY=ON",
                 "-B",
                 "${workspaceFolder}/build/debug",
                 "-S",
@@ -60,25 +61,65 @@
             },
             "problemMatcher": ["$gcc"],
             "dependsOn": "CMake Configure Release"
+        },
+        {
+            "label": "Run Clang-Tidy",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "${workspaceFolder}/build/debug",
+                "--target",
+                "clang-tidy"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "problemMatcher": []
         }
     ],
     "configurations": [
         {
-            "name": "C++: Launch",
+            "name": "C++: Launch Debug",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/platformer_prototype",
-            "args": [],
+            "program": "${workspaceFolder}/build/debug/platformer_prototype",
+            "args": ["--width", "1024", "--height", "768"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": false,
             "MIMode": "lldb",
-            "preLaunchTask": "CMake Build",
+            "preLaunchTask": "Build Debug",
             "setupCommands": [
                 {
-                    "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
+                    "description": "Enable pretty-printing for lldb",
+                    "text": "settings set target.inline-breakpoint-strategy always",
+                    "ignoreFailures": true
+                }
+            ],
+            "miDebuggerPath": "/usr/bin/lldb",
+            "logging": {
+                "engineLogging": true
+            }
+        },
+        {
+            "name": "C++: Launch Release",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/release/platformer_prototype",
+            "args": ["--width", "1024", "--height", "768"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb",
+            "preLaunchTask": "Build Release",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for lldb",
+                    "text": "settings set target.inline-breakpoint-strategy always",
                     "ignoreFailures": true
                 }
             ],
