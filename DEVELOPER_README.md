@@ -5,6 +5,7 @@
 To build the project, you need to have the following dependencies installed:
 
 - SDL2
+- Box2D 3.1.0
 - A C++ compiler (e.g., g++ or clang++)
 - CMake (optional, for building the project with CMake)
 
@@ -30,7 +31,7 @@ To build the project, you need to have the following dependencies installed:
 
 1. Compile the source files using a C++ compiler:
    ```
-   g++ -o platformer_prototype src/main.cpp -lSDL2
+   g++ -o platformer_prototype src/main.cpp -lSDL2 -lbox2d
    ```
 
 ## Code Structure

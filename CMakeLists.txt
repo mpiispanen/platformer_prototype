@@ -44,3 +44,10 @@ if(ENABLE_CLANG_TIDY)
     COMMENT "Running clang-tidy"
   )
 endif()
+
+# Add Box2D include directory
+include_directories(external/box2d/include)
+
+# Link Box2D library
+add_subdirectory(external/box2d)
+target_link_libraries(platformer_prototype box2d)
