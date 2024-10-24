@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
     }
 
     b2WorldDef worldDef = b2DefaultWorldDef();
-    worldDef.gravity = (b2Vec2){0.0f, -10.0f};
+    worldDef.gravity = b2Vec2{0.0f, -10.0f};
     b2WorldId worldId = b2CreateWorld(&worldDef);
 
     // Main game loop
