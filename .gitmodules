@@ -7,3 +7,9 @@
 [submodule "external/sdl"]
 	path = external/sdl
 	url = https://github.com/libsdl-org/SDL
+[submodule "external/nlohmann"]
+	path = external/nlohmann
+	url = https://github.com/nlohmann/json
+[submodule "external/sdl_image"]
+	path = external/sdl_image
+	url = https://github.com/libsdl-org/SDL_image
