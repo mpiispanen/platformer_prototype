@@ -83,17 +83,16 @@ jobs:
 
     - name: Run clang-tidy and Generate Report
       run: cmake --build build --target run-clang-tidy
-      continue-on-error: true  # Allows subsequent steps to run even if this step fails
 
     - name: Upload Clang-Tidy Report
-      if: always()  # Ensures this step runs regardless of previous step success/failure
+      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: clang-tidy-report
-        path: build/clang-tidy-fixes.yaml  # Path to the generated report
+        path: build/clang-tidy-fixes.yaml
 
     - name: Fail on Clang-Tidy Issues
-      if: failure()  # Only runs if the previous steps have failed
+      if: failure()
       run: |
         echo "Clang-Tidy detected issues. Failing the build."
         exit 1
