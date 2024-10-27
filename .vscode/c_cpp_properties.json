@@ -4,7 +4,10 @@
             "name": "Mac",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/opt/homebrew/include"
+                "/opt/homebrew/include",
+                "external/sdl/include",
+                "external/box2d/include",
+                "external/cxxopts/include"
             ],
             "defines": [],
             "macFrameworkPath": [

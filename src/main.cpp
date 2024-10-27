@@ -1,18 +1,16 @@
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include <iostream>
 #include <string>
 #include <cxxopts.hpp>
 #include <box2d/box2d.h>
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     // Default window size
     int windowWidth = 800;
     int windowHeight = 600;
     bool fullscreen = false;
 
-    try
-    {
+    try {
         cxxopts::Options options(argv[0], "Platformer Prototype");
         options.add_options()
             ("w,width", "Window width", cxxopts::value<int>(windowWidth)->default_value("800"))
@@ -22,103 +20,74 @@ int main(int argc, char *argv[])
 
         auto result = options.parse(argc, argv);
 
-        if (result.count("help"))
-        {
+        if (result.count("help")) {
             std::cout << options.help() << std::endl;
             return 0;
         }
     }
-    catch (const cxxopts::exceptions::exception &e)
-    {
+    catch (const cxxopts::exceptions::exception &e) {
         std::cerr << "Error parsing options: " << e.what() << std::endl;
         return 1;
     }
 
-    // Initialize SDL2
-    if (SDL_Init(SDL_INIT_VIDEO) < 0)
-    {
-        std::cerr << "Failed to initialize SDL2: " << SDL_GetError() << std::endl;
+    // Initialize SDL with video subsystem
+    if (!SDL_Init(SDL_INIT_VIDEO)) {
+        std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
         return 1;
     }
 
-    // Create the application window
-    Uint32 windowFlags = SDL_WINDOW_SHOWN;
-    if (fullscreen)
-    {
+    // Create SDL_Window with SDL_WINDOW_ALLOW_HIGHDPI flag
+    SDL_WindowFlags windowFlags =  SDL_WINDOW_HIGH_PIXEL_DENSITY;
+    if (fullscreen) {
         windowFlags |= SDL_WINDOW_FULLSCREEN;
     }
-    SDL_Window *window = SDL_CreateWindow("Platformer Prototype", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, windowWidth, windowHeight, windowFlags);
-    if (!window)
-    {
-        std::cerr << "Failed to create window: " << SDL_GetError() << std::endl;
+
+    SDL_Window *window = SDL_CreateWindow("Platformer Prototype",
+                                          windowWidth,
+                                          windowHeight,
+                                          windowFlags);
+    if (!window) {
+        std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
         SDL_Quit();
         return 1;
     }
 
-    // Create a renderer
-    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    if (!renderer)
-    {
-        std::cerr << "Failed to create renderer: " << SDL_GetError() << std::endl;
+    // Create SDL_Renderer with SDL_RENDERER_ACCELERATED and SDL_RENDERER_PRESENTVSYNC flags
+    SDL_Renderer *renderer = SDL_CreateRenderer(window, NULL);
+    if (!renderer) {
+        std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
         SDL_DestroyWindow(window);
         SDL_Quit();
         return 1;
     }
 
+    // Initialize Box2D World
     b2WorldDef worldDef = b2DefaultWorldDef();
-    worldDef.gravity = b2Vec2{0.0f, -10.0f};
+    worldDef.gravity = b2Vec2{0.0f, -10.0f}; // Updated to C++-style initialization
     b2WorldId worldId = b2CreateWorld(&worldDef);
 
     // Main game loop
     bool running = true;
-    while (running)
-    {
+    while (running) {
         // Handle events
         SDL_Event event;
-        while (SDL_PollEvent(&event))
-        {
-            if (event.type == SDL_QUIT)
-            {
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_EVENT_QUIT) {
                 running = false;
             }
-            else if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED)
-            {
-                windowWidth = event.window.data1;
-                windowHeight = event.window.data2;
-                SDL_SetWindowSize(window, windowWidth, windowHeight);
-            }
-            else if (event.type == SDL_KEYDOWN)
-            {
-                switch (event.key.keysym.sym)
-                {
-                case SDLK_ESCAPE:
-                    running = false;
-                    break;
-                    // Handle other key events here
-                }
-            }
-            else if (event.type == SDL_MOUSEBUTTONDOWN)
-            {
-                // Handle mouse button events here
-            }
+            // Handle other events (keyboard, mouse, etc.)
         }
 
-        // Update game logic here
-        float timeStep = 1.0f / 60.0f;
-        int subStepCount = 4;
-        b2World_Step(worldId, timeStep, subStepCount);
-
-        // Render the game
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        // Game logic and rendering
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Clear with black color
         SDL_RenderClear(renderer);
-        // Draw game objects here
-        SDL_RenderPresent(renderer);
 
-        // Control frame rate (target 60 FPS)
-        SDL_Delay(16);
+        // TODO: Add your rendering logic here
+
+        SDL_RenderPresent(renderer);
     }
 
-    // Clean up resources
+    // Cleanup
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
