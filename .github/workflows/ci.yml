@@ -76,16 +76,24 @@ jobs:
       uses: libsdl-org/setup-sdl@main
 
     - name: Set up clang-tidy
-      run: sudo apt-get install -y clang-tidy
+      run: sudo apt-get update && sudo apt-get install -y clang-tidy
 
     - name: Configure CMake with clang-tidy
       run: cmake -B build -S . -DENABLE_CLANG_TIDY=ON
 
-    - name: Run clang-tidy
+    - name: Run clang-tidy and Generate Report
       run: cmake --build build --target run-clang-tidy
+      continue-on-error: true  # Allows subsequent steps to run even if this step fails
 
-    - name: Upload static analysis results
+    - name: Upload Clang-Tidy Report
+      if: always()  # Ensures this step runs regardless of previous step success/failure
       uses: actions/upload-artifact@v4
       with:
-        name: static-analysis-results
-        path: build
+        name: clang-tidy-report
+        path: build/clang-tidy-fixes.yaml  # Path to the generated report
+
+    - name: Fail on Clang-Tidy Issues
+      if: failure()  # Only runs if the previous steps have failed
+      run: |
+        echo "Clang-Tidy detected issues. Failing the build."
+        exit 1

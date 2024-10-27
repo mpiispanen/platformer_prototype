@@ -43,18 +43,20 @@ option(ENABLE_CLANG_TIDY "Enable clang-tidy" OFF)
 
 # Enable Clang-Tidy if the option is ON
 if(ENABLE_CLANG_TIDY)
-  set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
-endif()
-
-# Alternatively, create a custom target for Clang-Tidy
-if(ENABLE_CLANG_TIDY)
   find_program(CLANG_TIDY_EXE clang-tidy REQUIRED)
-  
-  set(CLANG_TIDY_CHECKS "*")
-  
+
+  # Define the Clang-Tidy checks you want to perform
+  set(CLANG_TIDY_CHECKS "-*,modernize-*,readability-*")  # Customize as needed
+
+  # Create a custom target for Clang-Tidy
   add_custom_target(run-clang-tidy
-    COMMAND ${CLANG_TIDY_EXE} ${SOURCE_FILES} -- -Iexternal/cxxopts/include -Iexternal/box2d/include -Iexternal/sdl/include
+    COMMAND ${CLANG_TIDY_EXE} ${SOURCE_FILES}
+      --checks=${CLANG_TIDY_CHECKS}
+      --warnings-as-errors=*  # Treat all warnings as errors
+      --format-style=file      # Use .clang-format file for formatting
+      --export-fixes=clang-tidy-fixes.yaml  # Export fixes to a YAML file
+      -- -Iexternal/cxxopts/include -Iexternal/box2d/include -Iexternal/sdl/include
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    COMMENT "Running clang-tidy on source files"
+    COMMENT "Running clang-tidy on source files with report generation"
   )
 endif()
