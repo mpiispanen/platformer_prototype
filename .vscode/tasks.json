@@ -70,7 +70,7 @@
                 "--build",
                 "${workspaceFolder}/build/debug",
                 "--target",
-                "clang-tidy"
+                "run-clang-tidy"
             ],
             "group": {
                 "kind": "build",

@@ -4,10 +4,17 @@
 #include <cxxopts.hpp>
 #include <box2d/box2d.h>
 
-int main(int argc, char *argv[]) {
+// Named constants
+constexpr int WINDOW_WIDTH = 800;
+constexpr int WINDOW_HEIGHT = 600;
+constexpr float GRAVITY_X = 0.0F;
+constexpr float GRAVITY_Y = -10.0F;
+constexpr int COLOR_ALPHA = 255;
+
+auto main(int argc, char *argv[]) -> int {
     // Default window size
-    int windowWidth = 800;
-    int windowHeight = 600;
+    int windowWidth = WINDOW_WIDTH;
+    int windowHeight = WINDOW_HEIGHT;
     bool fullscreen = false;
 
     try {
@@ -20,7 +27,7 @@ int main(int argc, char *argv[]) {
 
         auto result = options.parse(argc, argv);
 
-        if (result.count("help")) {
+        if (result.count("help") != 0U) {
             std::cout << options.help() << std::endl;
             return 0;
         }
@@ -46,15 +53,15 @@ int main(int argc, char *argv[]) {
                                           windowWidth,
                                           windowHeight,
                                           windowFlags);
-    if (!window) {
+    if (window == nullptr) {
         std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
         SDL_Quit();
         return 1;
     }
 
     // Create SDL_Renderer with SDL_RENDERER_ACCELERATED and SDL_RENDERER_PRESENTVSYNC flags
-    SDL_Renderer *renderer = SDL_CreateRenderer(window, NULL);
-    if (!renderer) {
+    SDL_Renderer *renderer = SDL_CreateRenderer(window, nullptr);
+    if (renderer == nullptr) {
         std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
         SDL_DestroyWindow(window);
         SDL_Quit();
@@ -63,7 +70,7 @@ int main(int argc, char *argv[]) {
 
     // Initialize Box2D World
     b2WorldDef worldDef = b2DefaultWorldDef();
-    worldDef.gravity = b2Vec2{0.0f, -10.0f}; // Updated to C++-style initialization
+    worldDef.gravity = b2Vec2{GRAVITY_X, GRAVITY_Y}; // Updated to C++-style initialization
     b2WorldId worldId = b2CreateWorld(&worldDef);
 
     // Main game loop
@@ -79,7 +86,7 @@ int main(int argc, char *argv[]) {
         }
 
         // Game logic and rendering
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Clear with black color
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, COLOR_ALPHA); // Clear with black color
         SDL_RenderClear(renderer);
 
         // TODO: Add your rendering logic here
