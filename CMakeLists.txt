@@ -54,7 +54,7 @@ if(ENABLE_CLANG_TIDY)
       --checks=${CLANG_TIDY_CHECKS}
       --warnings-as-errors=*  # Treat all warnings as errors
       --format-style=file      # Use .clang-format file for formatting
-      --export-fixes=clang-tidy-fixes.yaml  # Export fixes to a YAML file
+      --export-fixes=${CMAKE_BINARY_DIR}/clang-tidy-fixes.yaml  # Export fixes to a YAML file
       -- -Iexternal/cxxopts/include -Iexternal/box2d/include -Iexternal/sdl/include
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Running clang-tidy on source files with report generation"
