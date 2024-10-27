@@ -1,8 +1,8 @@
 # Platformer Prototype
 
-[![Build Linux](https://github.com/yourusername/yourrepo/actions/workflows/ci.yml/badge.svg?job=build-linux)](https://github.com/yourusername/yourrepo/actions/workflows/ci.yml?query=job%3Abuild-linux)
-[![Build Windows](https://github.com/yourusername/yourrepo/actions/workflows/ci.yml/badge.svg?job=build-windows)](https://github.com/yourusername/yourrepo/actions/workflows/ci.yml?query=job%3Abuild-windows)
-[![Clang-Tidy](https://github.com/yourusername/yourrepo/actions/workflows/ci.yml/badge.svg?job=static-analysis)](https://github.com/yourusername/yourrepo/actions/workflows/ci.yml?query=job%3Astatic-analysis)
+[![Build Linux](https://github.com/mpiispanen/platformer_prototype/actions/workflows/ci.yml/badge.svg?job=build-linux)](https://github.com/mpiispanen/platformer_prototype/actions/workflows/ci.yml?query=job%3Abuild-linux)
+[![Build Windows](https://github.com/mpiispanen/platformer_prototype/actions/workflows/ci.yml/badge.svg?job=build-windows)](https://github.com/mpiispanen/platformer_prototype/actions/workflows/ci.yml?query=job%3Abuild-windows)
+[![Clang-Tidy](https://github.com/mpiispanen/platformer_prototype/actions/workflows/ci.yml/badge.svg?job=static-analysis)](https://github.com/mpiispanen/platformer_prototype/actions/workflows/ci.yml?query=job%3Astatic-analysis)
 
 ## Description
 
