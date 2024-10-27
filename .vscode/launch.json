@@ -22,7 +22,7 @@
             ],
             "miDebuggerPath": "/Users/matpii01/.vscode/extensions/ms-vscode.cpptools-1.22.10-darwin-arm64/debugAdapters/lldb-mi/bin/lldb-mi",
             "logging": {
-                "engineLogging": true
+                "engineLogging": false
             }
         },
         {
@@ -46,7 +46,7 @@
             ],
             "miDebuggerPath": "/Users/matpii01/.vscode/extensions/ms-vscode.cpptools-1.22.10-darwin-arm64/debugAdapters/lldb-mi/bin/lldb-mi",
             "logging": {
-                "engineLogging": true
+                "engineLogging": false
             }
         }
     ]

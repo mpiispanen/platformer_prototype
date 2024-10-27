@@ -45,9 +45,6 @@ jobs:
     - name: Update submodules
       run: git submodule update --init --recursive
 
-    - name: Set up SDL
-      uses: libsdl-org/setup-sdl@main
-
     - name: Set up CMake
       uses: lukka/get-cmake@latest
 
@@ -85,7 +82,7 @@ jobs:
       run: cmake -B build -S . -DENABLE_CLANG_TIDY=ON
 
     - name: Run clang-tidy
-      run: cmake --build build --target clang-tidy
+      run: cmake --build build --target run-clang-tidy
 
     - name: Upload static analysis results
       uses: actions/upload-artifact@v4
