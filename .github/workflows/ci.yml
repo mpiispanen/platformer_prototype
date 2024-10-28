@@ -15,9 +15,6 @@ jobs:
     - name: Update submodules
       run: git submodule update --init --recursive
 
-    - name: Set up SDL
-      uses: libsdl-org/setup-sdl@main
-
     - name: Set up CMake
       uses: lukka/get-cmake@latest
 
@@ -47,6 +44,9 @@ jobs:
 
     - name: Set up CMake
       uses: lukka/get-cmake@latest
+
+    - name: Install NASM
+      run: choco install nasm
 
     - name: Configure CMake
       run: cmake -B build -S .
