@@ -1,7 +1,7 @@
 #include "Animation.h"
 
 Animation::Animation()
-    : currentFrameIndex(0), elapsedTime(0.0f) {}
+    : currentFrameIndex(0), elapsedTime(0.0F) {}
 
 Animation::~Animation() {
     for (auto& frame : frames) {
@@ -14,16 +14,18 @@ void Animation::addFrame(SDL_Texture* texture, int duration) {
 }
 
 void Animation::update(float deltaTime) {
-    if (frames.empty()) return;
+    if (frames.empty()) {
+        return;
+    }
 
     elapsedTime += deltaTime;
     if (elapsedTime >= frames[currentFrameIndex].duration) {
-        elapsedTime = 0.0f;
+        elapsedTime = 0.0F;
         currentFrameIndex = (currentFrameIndex + 1) % frames.size();
     }
 }
 
-SDL_Texture* Animation::getCurrentFrame() const {
+auto Animation::getCurrentFrame() const -> SDL_Texture* {
     if (frames.empty()) return nullptr;
     return frames[currentFrameIndex].texture;
 }
