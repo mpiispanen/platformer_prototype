@@ -4,8 +4,11 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project(platformer_prototype)
 
+# Enable Objective-C language support
+enable_language(OBJC)
+
 # Define source files
-set(SOURCE_FILES src/main.cpp)
+file(GLOB_RECURSE SOURCE_FILES src/*.cpp src/*.h src/*.m)
 
 # Add executable target
 add_executable(platformer_prototype ${SOURCE_FILES})
@@ -19,12 +22,20 @@ target_include_directories(platformer_prototype PRIVATE external/box2d/include)
 ## cxxopts
 target_include_directories(platformer_prototype PRIVATE external/cxxopts/include)
 
+## nlohmann/json
+add_subdirectory(external/nlohmann)
+target_include_directories(platformer_prototype PRIVATE external/json/include)
+
 ## SDL3
 add_subdirectory(external/sdl)
 target_include_directories(platformer_prototype PRIVATE external/sdl/include)
 
-# Link SDL3 and Box2D libraries
-target_link_libraries(platformer_prototype PRIVATE SDL3::SDL3 box2d)
+## SDL2_image
+add_subdirectory(external/sdl_image)
+target_include_directories(platformer_prototype PRIVATE external/sdl_image/include)
+
+# Link SDL3, Box2D, and nlohmann_json libraries
+target_link_libraries(platformer_prototype PRIVATE SDL3::SDL3 SDL3_image::SDL3_image box2d nlohmann_json::nlohmann_json)
 
 # Include build type options for debug and release builds
 set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build (Debug or Release)" FORCE)
@@ -55,7 +66,7 @@ if(ENABLE_CLANG_TIDY)
       --warnings-as-errors=*  # Treat all warnings as errors
       --format-style=file      # Use .clang-format file for formatting
       --export-fixes=${CMAKE_BINARY_DIR}/clang-tidy-fixes.yaml  # Export fixes to a YAML file
-      -- -Iexternal/cxxopts/include -Iexternal/box2d/include -Iexternal/sdl/include
+      -- -Iexternal/cxxopts/include -Iexternal/box2d/include -Iexternal/sdl/include -Iexternal/sdl_image/include -Iexternal/json/include
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Running clang-tidy on source files with report generation"
   )

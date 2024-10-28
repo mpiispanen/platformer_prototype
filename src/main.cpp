@@ -3,10 +3,12 @@
 #include <string>
 #include <cxxopts.hpp>
 #include <box2d/box2d.h>
+#include "Level.h"
 
 // Named constants
 constexpr int WINDOW_WIDTH = 800;
 constexpr int WINDOW_HEIGHT = 600;
+constexpr bool DEFAULT_FULLSCREEN = false;
 constexpr float GRAVITY_X = 0.0F;
 constexpr float GRAVITY_Y = -10.0F;
 constexpr int COLOR_ALPHA = 255;
@@ -15,7 +17,9 @@ auto main(int argc, char *argv[]) -> int {
     // Default window size
     int windowWidth = WINDOW_WIDTH;
     int windowHeight = WINDOW_HEIGHT;
-    bool fullscreen = false;
+    bool fullscreen = DEFAULT_FULLSCREEN;
+    std::string assetDir = "assets"; // Default asset directory
+    std::string levelName = "test_level"; // Default level name
 
     try {
         cxxopts::Options options(argv[0], "Platformer Prototype");
@@ -23,6 +27,8 @@ auto main(int argc, char *argv[]) -> int {
             ("w,width", "Window width", cxxopts::value<int>(windowWidth)->default_value("800"))
             ("h,height", "Window height", cxxopts::value<int>(windowHeight)->default_value("600"))
             ("f,fullscreen", "Fullscreen mode", cxxopts::value<bool>(fullscreen)->default_value("false"))
+            ("a,assetDir", "Asset directory", cxxopts::value<std::string>(assetDir)->default_value("assets"))
+            ("l,levelName", "Level name", cxxopts::value<std::string>(levelName)->default_value("test_level"))
             ("help", "Print help");
 
         auto result = options.parse(argc, argv);
@@ -73,7 +79,23 @@ auto main(int argc, char *argv[]) -> int {
     worldDef.gravity = b2Vec2{GRAVITY_X, GRAVITY_Y}; // Updated to C++-style initialization
     b2WorldId worldId = b2CreateWorld(&worldDef);
 
+    // Create Level object
+    Level level(renderer, worldId, assetDir, windowWidth, windowHeight, 24);
+
+    // Load tilemap
+    std::string levelPath = assetDir + "/levels/" + levelName + ".tmj";
+    if (!level.loadTilemap(levelPath)) {
+        std::cerr << "Failed to load tilemap: " << levelPath << std::endl;
+        level.handleErrors();
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        return 1;
+    }
+
     // Main game loop
+    float timeStep = 1.0f / 60.0f;
+    int subStepCount = 4;
     bool running = true;
     while (running) {
         // Handle events
@@ -85,11 +107,15 @@ auto main(int argc, char *argv[]) -> int {
             // Handle other events (keyboard, mouse, etc.)
         }
 
+        // Update physics
+        b2World_Step(worldId, timeStep, subStepCount);
+
         // Game logic and rendering
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, COLOR_ALPHA); // Clear with black color
         SDL_RenderClear(renderer);
 
-        // TODO: Add your rendering logic here
+        // Render level
+        level.render();
 
         SDL_RenderPresent(renderer);
     }
