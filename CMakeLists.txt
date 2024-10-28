@@ -4,11 +4,16 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project(platformer_prototype)
 
-# Enable Objective-C language support
-enable_language(OBJC)
+# Conditionally enable Objective-C language support on macOS
+if (APPLE)
+    enable_language(OBJC)
+    
+    # Define source files
+    file(GLOB_RECURSE SOURCE_FILES src/*.cpp src/*.h)
+endif()
 
 # Define source files
-file(GLOB_RECURSE SOURCE_FILES src/*.cpp src/*.h src/*.m)
+file(GLOB_RECURSE SOURCE_FILES src/*.cpp src/*.h)
 
 # Add executable target
 add_executable(platformer_prototype ${SOURCE_FILES})
