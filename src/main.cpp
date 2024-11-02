@@ -94,7 +94,7 @@ auto main(int argc, char *argv[]) -> int {
     }
 
     // Main game loop
-    float timeStep = 1.0f / 60.0f;
+    float timeStep = 1.0F / 60.0F;
     int subStepCount = 4;
     bool running = true;
     while (running) {

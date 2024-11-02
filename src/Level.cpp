@@ -5,16 +5,16 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
 
-Level::Level(SDL_Renderer* renderer, b2WorldId worldId, const std::string& assetDir, int windowWidth, int windowHeight, int tilesVertically)
+Level::Level(SDL_Renderer* renderer, b2WorldId worldId, std::string& assetDir, int windowWidth, int windowHeight, int tilesVertically)
     : renderer(renderer), worldId(worldId), assetDir(assetDir), windowWidth(windowWidth), windowHeight(windowHeight), tilesVertically(tilesVertically) {
         scale = static_cast<float>(windowHeight) / (tilesVertically * Tile::TILE_SIZE);
         offsetX = 0;
-        offsetY = windowHeight * -1.0f * scale;
+        offsetY = windowHeight * -1.0F * scale;
     }
 
-Level::~Level() {}
+Level::~Level() = default;
 
-bool Level::loadTilemap(const std::string& filename) {
+auto Level::loadTilemap(const std::string& filename) -> bool {
     std::ifstream file(filename);
     if (!file.is_open()) {
         std::cerr << "Failed to open tilemap file: " << filename << std::endl;
@@ -70,11 +70,11 @@ void Level::createTile(const std::string& type, int x, int y, bool isDynamic) {
 
     b2BodyId bodyId = b2CreateBody(worldId, &bodyDef);
 
-    b2Polygon box = b2MakeBox(tileWidth / 2.0f, tileHeight / 2.0f);
+    b2Polygon box = b2MakeBox(tileWidth / 2.0F, tileHeight / 2.0F);
 
     b2ShapeDef shapeDef = b2DefaultShapeDef();
-    shapeDef.density = 1.0f;
-    shapeDef.friction = 0.3f;
+    shapeDef.density = 1.0F;
+    shapeDef.friction = 0.3F;
     b2ShapeId shapeId = b2CreatePolygonShape(bodyId, &shapeDef, &box);
 
     // Create and store tiles as shared pointers

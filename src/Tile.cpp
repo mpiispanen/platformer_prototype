@@ -7,13 +7,13 @@ Tile::Tile(SDL_Renderer* renderer, const std::string& type, b2BodyId bodyId, b2S
     : renderer(renderer), bodyId(bodyId), shapeId(shapeId), width(width), height(height), type(type) {
     std::string texturePath = assetDir + "/tiles/" + type + ".png";
     SDL_Surface* surface = IMG_Load(texturePath.c_str());
-    if (!surface) {
+    if (surface == nullptr) {
         std::cerr << "Failed to load texture: " << texturePath << " Error: " << SDL_GetError() << std::endl;
         return;
     }
     texture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_DestroySurface(surface);
-    if (!texture) {
+    if (texture == nullptr) {
         std::cerr << "Failed to create texture from surface: " << SDL_GetError() << std::endl;
     }
 }
@@ -50,22 +50,22 @@ void Tile::updateAnimation(float deltaTime) {
     animation.update(deltaTime);
 }
 
-int Tile::getX() const {
+auto Tile::getX() const -> int {
     return worldPos.x;
 }
 
-int Tile::getY() const {
+auto Tile::getY() const -> int {
     return worldPos.y;
 }
 
-uint Tile::getWidth() const {
+auto Tile::getWidth() const -> uint {
     return width;
 }
 
-uint Tile::getHeight() const {
+auto Tile::getHeight() const -> uint {
     return height;
 }
 
-const std::string& Tile::getType() const {
+auto Tile::getType() const -> const std::string& {
     return type;
 }

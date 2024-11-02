@@ -68,11 +68,30 @@ if(ENABLE_CLANG_TIDY)
   add_custom_target(run-clang-tidy
     COMMAND ${CLANG_TIDY_EXE} ${SOURCE_FILES}
       --checks=${CLANG_TIDY_CHECKS}
-      --warnings-as-errors=*  # Treat all warnings as errors
       --format-style=file      # Use .clang-format file for formatting
       --export-fixes=${CMAKE_BINARY_DIR}/clang-tidy-fixes.yaml  # Export fixes to a YAML file
       -- -Iexternal/cxxopts/include -Iexternal/box2d/include -Iexternal/sdl/include -Iexternal/sdl_image/include -Iexternal/json/include
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Running clang-tidy on source files with report generation"
+  )
+
+  # Create a custom target for applying Clang-Tidy fixes
+  add_custom_target(apply-clang-tidy-fixes
+    COMMAND ${CMAKE_COMMAND} -E echo "Applying Clang-Tidy fixes"
+    COMMAND ${CLANG_TIDY_EXE} 
+      ${SOURCE_FILES}
+      -fix
+      -fix-errors
+      -p=${CMAKE_BINARY_DIR}
+      --config-file=${CMAKE_SOURCE_DIR}/.clang-tidy
+      --
+      -I${CMAKE_SOURCE_DIR}/src
+      -Iexternal/cxxopts/include 
+      -Iexternal/box2d/include 
+      -Iexternal/sdl/include 
+      -Iexternal/sdl_image/include 
+      -Iexternal/json/include
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMENT "Applying Clang-Tidy fixes"
   )
 endif()

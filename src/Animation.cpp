@@ -26,6 +26,7 @@ void Animation::update(float deltaTime) {
 }
 
 auto Animation::getCurrentFrame() const -> SDL_Texture* {
-    if (frames.empty()) return nullptr;
+    if (frames.empty()) { return nullptr;
+}
     return frames[currentFrameIndex].texture;
 }

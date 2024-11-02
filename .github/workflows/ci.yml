@@ -49,10 +49,11 @@ jobs:
       run: choco install nasm
 
     - name: Add NASM to PATH
-      run: echo "::add-path::C:\\Program Files\\NASM"
+      run: echo "C:\Program Files\NASM" >> $GITHUB_PATH
+      shell: bash
 
     - name: Configure CMake
-      run: cmake -B build -S .
+      run: cmake -B build -S . -DAOM_TARGET_CPU=generic
 
     - name: Build
       run: cmake --build build
