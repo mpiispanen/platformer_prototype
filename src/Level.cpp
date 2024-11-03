@@ -35,7 +35,7 @@ auto Level::loadTilemap(const std::string& filename) -> bool {
 
             for (int y = 0; y < height; ++y) {
                 for (int x = 0; x < width; ++x) {
-                    int tileId = data[y * width + x];
+                    int tileId = data[(y * width) + x];
                     if (tileId == 1) {
                         createTile("ground", x * tileWidth, (height - y) * tileHeight, false);
                     }
@@ -71,7 +71,7 @@ void Level::createTile(const std::string& type, int x, int y, bool isDynamic) {
     b2BodyId bodyId = b2CreateBody(worldId, &bodyDef);
 
     b2Polygon box = b2MakeBox(tileWidth / 2.0F, tileHeight / 2.0F);
-
+    
     b2ShapeDef shapeDef = b2DefaultShapeDef();
     shapeDef.density = 1.0F;
     shapeDef.friction = 0.3F;

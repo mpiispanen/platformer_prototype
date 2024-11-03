@@ -17,11 +17,11 @@ public:
     void render(float scale, float offsetX, float offsetY, int windowHeight);
     void updateAnimation(float deltaTime);
 
-    int getX() const;
-    int getY() const;
-    uint32_t getWidth() const;
-    uint32_t getHeight() const;
-    const std::string& getType() const;
+    [[nodiscard]] auto getX() const -> int;
+    [[nodiscard]] auto getY() const -> int;
+    [[nodiscard]] auto getWidth() const -> uint32_t;
+    [[nodiscard]] auto getHeight() const -> uint32_t;
+    [[nodiscard]] auto getType() const -> const std::string&;
 
 private:
     std::string type;

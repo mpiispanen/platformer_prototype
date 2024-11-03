@@ -14,7 +14,7 @@ public:
     Level(SDL_Renderer* renderer, b2WorldId worldId, std::string& assetDir, int windowWidth, int windowHeight, int tilesVertically);
     ~Level();
 
-    bool loadTilemap(const std::string& filename);
+    auto loadTilemap(const std::string& filename) -> bool;
     void render();
     void handleErrors();
 

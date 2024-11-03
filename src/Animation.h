@@ -11,7 +11,7 @@ public:
 
     void addFrame(SDL_Texture* texture, int duration);
     void update(float deltaTime);
-    SDL_Texture* getCurrentFrame() const;
+    [[nodiscard]] auto getCurrentFrame() const -> SDL_Texture*;
 
 private:
     struct Frame {

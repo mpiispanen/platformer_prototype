@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 cmake_policy(SET CMP0074 NEW)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 project(platformer_prototype)
 
 # Conditionally enable Objective-C language support on macOS
@@ -66,31 +67,37 @@ if(ENABLE_CLANG_TIDY)
 
   # Create a custom target for Clang-Tidy
   add_custom_target(run-clang-tidy
-    COMMAND ${CLANG_TIDY_EXE} ${SOURCE_FILES}
+    COMMAND ${CLANG_TIDY_EXE} -p=${CMAKE_BINARY_DIR} ${SOURCE_FILES}
       --checks=${CLANG_TIDY_CHECKS}
-      --format-style=file      # Use .clang-format file for formatting
-      --export-fixes=${CMAKE_BINARY_DIR}/clang-tidy-fixes.yaml  # Export fixes to a YAML file
-      -- -Iexternal/cxxopts/include -Iexternal/box2d/include -Iexternal/sdl/include -Iexternal/sdl_image/include -Iexternal/json/include
+      --format-style=file
+      --export-fixes=${CMAKE_BINARY_DIR}/clang-tidy-fixes.yaml
+      --
+      -std=c++20
+      -I${CMAKE_SOURCE_DIR}/src
+      -I${CMAKE_SOURCE_DIR}/external/cxxopts/include
+      -I${CMAKE_SOURCE_DIR}/external/box2d/include
+      -I${CMAKE_SOURCE_DIR}/external/sdl/include
+      -I${CMAKE_SOURCE_DIR}/external/sdl_image/include
+      -I${CMAKE_SOURCE_DIR}/external/nlohmann/include
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    COMMENT "Running clang-tidy on source files with report generation"
+    COMMENT "Running clang-tidy on source files"
   )
 
   # Create a custom target for applying Clang-Tidy fixes
   add_custom_target(apply-clang-tidy-fixes
     COMMAND ${CMAKE_COMMAND} -E echo "Applying Clang-Tidy fixes"
-    COMMAND ${CLANG_TIDY_EXE} 
-      ${SOURCE_FILES}
+    COMMAND ${CLANG_TIDY_EXE} -p=${CMAKE_BINARY_DIR} ${SOURCE_FILES}
       -fix
       -fix-errors
-      -p=${CMAKE_BINARY_DIR}
       --config-file=${CMAKE_SOURCE_DIR}/.clang-tidy
       --
+      -std=c++20
       -I${CMAKE_SOURCE_DIR}/src
-      -Iexternal/cxxopts/include 
-      -Iexternal/box2d/include 
-      -Iexternal/sdl/include 
-      -Iexternal/sdl_image/include 
-      -Iexternal/json/include
+      -I${CMAKE_SOURCE_DIR}/external/cxxopts/include
+      -I${CMAKE_SOURCE_DIR}/external/box2d/include
+      -I${CMAKE_SOURCE_DIR}/external/sdl/include
+      -I${CMAKE_SOURCE_DIR}/external/sdl_image/include
+      -I${CMAKE_SOURCE_DIR}/external/nlohmann/include
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Applying Clang-Tidy fixes"
   )

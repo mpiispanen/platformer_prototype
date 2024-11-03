@@ -12,6 +12,7 @@ constexpr bool DEFAULT_FULLSCREEN = false;
 constexpr float GRAVITY_X = 0.0F;
 constexpr float GRAVITY_Y = -10.0F;
 constexpr int COLOR_ALPHA = 255;
+constexpr float FRAMES_PER_SECOND = 60.0F;
 
 auto main(int argc, char *argv[]) -> int {
     // Default window size
@@ -80,7 +81,8 @@ auto main(int argc, char *argv[]) -> int {
     b2WorldId worldId = b2CreateWorld(&worldDef);
 
     // Create Level object
-    Level level(renderer, worldId, assetDir, windowWidth, windowHeight, 24);
+    constexpr uint32_t WORLD_HEIGHT = 24;
+    Level level(renderer, worldId, assetDir, windowWidth, windowHeight, WORLD_HEIGHT);
 
     // Load tilemap
     std::string levelPath = assetDir + "/levels/" + levelName + ".tmj";
@@ -94,7 +96,7 @@ auto main(int argc, char *argv[]) -> int {
     }
 
     // Main game loop
-    float timeStep = 1.0F / 60.0F;
+    float timeStep = 1.0F / FRAMES_PER_SECOND;
     int subStepCount = 4;
     bool running = true;
     while (running) {
