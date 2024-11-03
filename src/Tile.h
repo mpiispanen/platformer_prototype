@@ -10,7 +10,7 @@ class Tile {
 public:
     static const int TILE_SIZE = 32; // Assuming each tile is 32x32 pixels
 
-    Tile(SDL_Renderer* renderer, const std::string& type, b2BodyId bodyId, b2ShapeId shapeId, uint width, uint height, const std::string& assetDir);
+    Tile(SDL_Renderer* renderer, const std::string& type, b2BodyId bodyId, b2ShapeId shapeId, uint32_t width, uint32_t height, const std::string& assetDir);
     ~Tile();
 
     void update();
@@ -19,15 +19,15 @@ public:
 
     int getX() const;
     int getY() const;
-    uint getWidth() const;
-    uint getHeight() const;
+    uint32_t getWidth() const;
+    uint32_t getHeight() const;
     const std::string& getType() const;
 
 private:
     std::string type;
     b2Vec2 worldPos;
-    uint width;
-    uint height;
+    uint32_t width;
+    uint32_t height;
     b2BodyId bodyId;
     b2ShapeId shapeId;
 

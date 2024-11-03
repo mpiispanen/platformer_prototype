@@ -3,7 +3,7 @@
 #include <SDL3_image/SDL_image.h>
 #include <iostream>
 
-Tile::Tile(SDL_Renderer* renderer, const std::string& type, b2BodyId bodyId, b2ShapeId shapeId, uint width, uint height, const std::string& assetDir)
+Tile::Tile(SDL_Renderer* renderer, const std::string& type, b2BodyId bodyId, b2ShapeId shapeId, uint32_t width, uint32_t height, const std::string& assetDir)
     : renderer(renderer), bodyId(bodyId), shapeId(shapeId), width(width), height(height), type(type) {
     std::string texturePath = assetDir + "/tiles/" + type + ".png";
     SDL_Surface* surface = IMG_Load(texturePath.c_str());
@@ -61,11 +61,11 @@ auto Tile::getY() const -> int {
     return worldPos.y;
 }
 
-auto Tile::getWidth() const -> uint {
+auto Tile::getWidth() const -> uint32_t {
     return width;
 }
 
-auto Tile::getHeight() const -> uint {
+auto Tile::getHeight() const -> uint32_t {
     return height;
 }
 

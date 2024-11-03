@@ -6,6 +6,7 @@
 #include <vector>
 #include <memory>
 #include <string>
+#include <cstdint>
 #include "Tile.h"
 
 class Level {
@@ -31,8 +32,8 @@ private:
     float offsetX;
     float offsetY;
 
-    uint tileWidth;
-    uint tileHeight;
+    uint32_t tileWidth;
+    uint32_t tileHeight;
     
     std::vector<std::shared_ptr<Tile>> tiles;
 };
