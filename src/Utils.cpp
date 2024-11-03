@@ -1,7 +1,7 @@
 #include "Utils.h"
 
 // Convert Box2D world coordinates to SDL rendering coordinates
-auto Box2DToSDL(const b2Vec2& worldPos, float scale, float offsetX, float offsetY, int windowHeight) -> SDL_FPoint {
+auto Box2DToSDL(b2Vec2& worldPos, float scale, float offsetX, float offsetY, int windowHeight) -> SDL_FPoint {
     SDL_FPoint screenPos;
     screenPos.x = worldPos.x * scale + offsetX;
     screenPos.y = windowHeight - (worldPos.y * scale + offsetY);
