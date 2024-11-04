@@ -6,8 +6,10 @@
                 "${workspaceFolder}/**",
                 "/opt/homebrew/include",
                 "external/sdl/include",
+                "external/sdl_image/include",
                 "external/box2d/include",
-                "external/cxxopts/include"
+                "external/cxxopts/include",
+                "external/nlohmann/include"
             ],
             "defines": [],
             "macFrameworkPath": [

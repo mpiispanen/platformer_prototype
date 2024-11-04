@@ -77,6 +77,23 @@
                 "isDefault": false
             },
             "problemMatcher": []
+        },
+        {
+            "label": "Apply Clang-Tidy Fixes",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "${workspaceFolder}/build",
+                "--target",
+                "apply-clang-tidy-fixes"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "problemMatcher": [],
+            "detail": "Task to apply Clang-Tidy fixes"
         }
     ],
     "configurations": [

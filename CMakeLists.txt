@@ -2,10 +2,19 @@ cmake_minimum_required(VERSION 3.10)
 cmake_policy(SET CMP0074 NEW)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 project(platformer_prototype)
 
+# Conditionally enable Objective-C language support on macOS
+if (APPLE)
+    enable_language(OBJC)
+    
+    # Define source files
+    file(GLOB_RECURSE SOURCE_FILES src/*.cpp src/*.h)
+endif()
+
 # Define source files
-set(SOURCE_FILES src/main.cpp)
+file(GLOB_RECURSE SOURCE_FILES src/*.cpp src/*.h)
 
 # Add executable target
 add_executable(platformer_prototype ${SOURCE_FILES})
@@ -19,12 +28,20 @@ target_include_directories(platformer_prototype PRIVATE external/box2d/include)
 ## cxxopts
 target_include_directories(platformer_prototype PRIVATE external/cxxopts/include)
 
+## nlohmann/json
+add_subdirectory(external/nlohmann)
+target_include_directories(platformer_prototype PRIVATE external/json/include)
+
 ## SDL3
 add_subdirectory(external/sdl)
 target_include_directories(platformer_prototype PRIVATE external/sdl/include)
 
-# Link SDL3 and Box2D libraries
-target_link_libraries(platformer_prototype PRIVATE SDL3::SDL3 box2d)
+## SDL2_image
+add_subdirectory(external/sdl_image)
+target_include_directories(platformer_prototype PRIVATE external/sdl_image/include)
+
+# Link SDL3, Box2D, and nlohmann_json libraries
+target_link_libraries(platformer_prototype PRIVATE SDL3::SDL3 SDL3_image::SDL3_image box2d nlohmann_json::nlohmann_json)
 
 # Include build type options for debug and release builds
 set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build (Debug or Release)" FORCE)
@@ -48,15 +65,42 @@ if(ENABLE_CLANG_TIDY)
   # Define the Clang-Tidy checks you want to perform
   set(CLANG_TIDY_CHECKS "-*,modernize-*,readability-*")  # Customize as needed
 
-  # Create a custom target for Clang-Tidy
+  # Create a custom target for running Clang-Tidy
   add_custom_target(run-clang-tidy
-    COMMAND ${CLANG_TIDY_EXE} ${SOURCE_FILES}
+    COMMAND ${CLANG_TIDY_EXE} -p=${CMAKE_BINARY_DIR} ${SOURCE_FILES}
       --checks=${CLANG_TIDY_CHECKS}
-      --warnings-as-errors=*  # Treat all warnings as errors
-      --format-style=file      # Use .clang-format file for formatting
-      --export-fixes=${CMAKE_BINARY_DIR}/clang-tidy-fixes.yaml  # Export fixes to a YAML file
-      -- -Iexternal/cxxopts/include -Iexternal/box2d/include -Iexternal/sdl/include
+      --format-style=file
+      --export-fixes=${CMAKE_BINARY_DIR}/clang-tidy-fixes.yaml
+      --
+      -x c++
+      -std=c++20
+      -I${CMAKE_SOURCE_DIR}/src
+      -I${CMAKE_SOURCE_DIR}/external/cxxopts/include
+      -I${CMAKE_SOURCE_DIR}/external/box2d/include
+      -I${CMAKE_SOURCE_DIR}/external/nlohmann/include
+      -I${CMAKE_SOURCE_DIR}/external/sdl/include
+      -I${CMAKE_SOURCE_DIR}/external/sdl_image/include
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    COMMENT "Running clang-tidy on source files with report generation"
+    COMMENT "Running clang-tidy on source files"
+  )
+
+  # Create a custom target for applying Clang-Tidy fixes
+  add_custom_target(apply-clang-tidy-fixes
+    COMMAND ${CMAKE_COMMAND} -E echo "Applying Clang-Tidy fixes"
+    COMMAND ${CLANG_TIDY_EXE} -p=${CMAKE_BINARY_DIR} ${SOURCE_FILES}
+      -fix
+      -fix-errors
+      --config-file=${CMAKE_SOURCE_DIR}/.clang-tidy
+      --
+      -x c++
+      -std=c++20
+      -I${CMAKE_SOURCE_DIR}/src
+      -I${CMAKE_SOURCE_DIR}/external/cxxopts/include
+      -I${CMAKE_SOURCE_DIR}/external/box2d/include
+      -I${CMAKE_SOURCE_DIR}/external/nlohmann/include
+      -I${CMAKE_SOURCE_DIR}/external/sdl/include
+      -I${CMAKE_SOURCE_DIR}/external/sdl_image/include
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMENT "Applying Clang-Tidy fixes"
   )
 endif()
