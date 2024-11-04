@@ -65,20 +65,21 @@ if(ENABLE_CLANG_TIDY)
   # Define the Clang-Tidy checks you want to perform
   set(CLANG_TIDY_CHECKS "-*,modernize-*,readability-*")  # Customize as needed
 
-  # Create a custom target for Clang-Tidy
+  # Create a custom target for running Clang-Tidy
   add_custom_target(run-clang-tidy
     COMMAND ${CLANG_TIDY_EXE} -p=${CMAKE_BINARY_DIR} ${SOURCE_FILES}
       --checks=${CLANG_TIDY_CHECKS}
       --format-style=file
       --export-fixes=${CMAKE_BINARY_DIR}/clang-tidy-fixes.yaml
       --
+      -x c++
       -std=c++20
       -I${CMAKE_SOURCE_DIR}/src
       -I${CMAKE_SOURCE_DIR}/external/cxxopts/include
       -I${CMAKE_SOURCE_DIR}/external/box2d/include
+      -I${CMAKE_SOURCE_DIR}/external/nlohmann/include
       -I${CMAKE_SOURCE_DIR}/external/sdl/include
       -I${CMAKE_SOURCE_DIR}/external/sdl_image/include
-      -I${CMAKE_SOURCE_DIR}/external/nlohmann/include
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Running clang-tidy on source files"
   )
@@ -91,13 +92,14 @@ if(ENABLE_CLANG_TIDY)
       -fix-errors
       --config-file=${CMAKE_SOURCE_DIR}/.clang-tidy
       --
+      -x c++
       -std=c++20
       -I${CMAKE_SOURCE_DIR}/src
       -I${CMAKE_SOURCE_DIR}/external/cxxopts/include
       -I${CMAKE_SOURCE_DIR}/external/box2d/include
+      -I${CMAKE_SOURCE_DIR}/external/nlohmann/include
       -I${CMAKE_SOURCE_DIR}/external/sdl/include
       -I${CMAKE_SOURCE_DIR}/external/sdl_image/include
-      -I${CMAKE_SOURCE_DIR}/external/nlohmann/include
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Applying Clang-Tidy fixes"
   )

@@ -1,4 +1,4 @@
-Checks: '-*,modernize-*,readability-*'
-HeaderFilterRegex: '.*'
+Checks: '-*,modernize-*,readability-*,-readability-magic-numbers'
+HeaderFilterRegex: '^(?!.*external).*'
 FormatStyle: 'file'
 UseColor: true
