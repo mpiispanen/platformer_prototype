@@ -4,6 +4,7 @@
 #include <cxxopts.hpp>
 #include <box2d/box2d.h>
 #include "Level.h"
+#include "Character.h"
 
 // Named constants
 constexpr int WINDOW_WIDTH = 800;
@@ -95,6 +96,9 @@ auto main(int argc, char *argv[]) -> int {
         return 1;
     }
 
+    // Create Character object
+    Character character(renderer, worldId, 100.0F, 30.0F);
+
     // Main game loop
     float timeStep = 1.0F / FRAMES_PER_SECOND;
     int subStepCount = 4;
@@ -107,10 +111,14 @@ auto main(int argc, char *argv[]) -> int {
                 running = false;
             }
             // Handle other events (keyboard, mouse, etc.)
+            character.handleInput(event);
         }
 
         // Update physics
         b2World_Step(worldId, timeStep, subStepCount);
+
+        // Update character
+        character.update(timeStep);
 
         // Game logic and rendering
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, COLOR_ALPHA); // Clear with black color
@@ -118,6 +126,9 @@ auto main(int argc, char *argv[]) -> int {
 
         // Render level
         level.render();
+
+        // Render character
+        character.render();
 
         SDL_RenderPresent(renderer);
     }
