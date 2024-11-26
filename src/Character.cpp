@@ -1,10 +1,14 @@
 #include "Character.h"
+#include "Utils.h"
 #include <SDL3_image/SDL_image.h>
-#include <SDL3/SDL_surface.h>
 #include <iostream>
 
-Character::Character(SDL_Renderer* renderer, b2WorldId worldId, float x, float y)
-    : renderer(renderer), worldId(worldId), x(x), y(y) {
+// Scale factor for character size (4x)
+constexpr float CHARACTER_SCALE = 4.0F;
+constexpr float TILE_SIZE = 32.0F;
+
+Character::Character(SDL_Renderer* renderer, b2WorldId worldId, float x, float y, int windowWidth, int windowHeight)
+    : renderer(renderer), worldId(worldId), x(x), y(y), windowWidth(windowWidth), windowHeight(windowHeight) {
     createBody();
     loadIdleAnimation();
 }
@@ -29,10 +33,17 @@ void Character::update(float deltaTime) {
 }
 
 void Character::render() {
-    SDL_FPoint screenPos = {x, y};
+    b2Vec2 position = b2Body_GetPosition(bodyId);
+    SDL_FPoint screenPos = Box2DToSDL(position, windowHeight);
+
     SDL_Texture* currentFrame = idleAnimation.getCurrentFrame();
     if (currentFrame != nullptr) {
-        SDL_FRect dstRect = {screenPos.x, screenPos.y, 32, 32};
+        SDL_FRect dstRect = {
+            screenPos.x - ((TILE_SIZE * CHARACTER_SCALE) / 2),
+            screenPos.y - ((TILE_SIZE * CHARACTER_SCALE) / 2),
+            TILE_SIZE * CHARACTER_SCALE,
+            TILE_SIZE * CHARACTER_SCALE
+        };
         SDL_RenderTexture(renderer, currentFrame, nullptr, &dstRect);
     }
 }
@@ -40,11 +51,14 @@ void Character::render() {
 void Character::createBody() {
     b2BodyDef bodyDef = b2DefaultBodyDef();
     bodyDef.type = b2_dynamicBody;
-    bodyDef.position = b2Vec2{x, y};
+    bodyDef.position = b2Vec2{x / PIXELS_PER_METER, y / PIXELS_PER_METER};
 
     bodyId = b2CreateBody(worldId, &bodyDef);
 
-    b2Polygon box = b2MakeBox(16.0F, 16.0F);
+    // Scale physics body to match visual size (in meters)
+    float halfWidth = (TILE_SIZE * CHARACTER_SCALE) / (2.0F * PIXELS_PER_METER);
+    float halfHeight = (TILE_SIZE * CHARACTER_SCALE) / (2.0F * PIXELS_PER_METER);
+    b2Polygon box = b2MakeBox(halfWidth, halfHeight);
 
     b2ShapeDef shapeDef = b2DefaultShapeDef();
     shapeDef.density = 1.0F;

@@ -1,4 +1,5 @@
 #include "Level.h"
+#include "Utils.h"
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 #include <iostream>
@@ -7,9 +8,9 @@
 
 Level::Level(SDL_Renderer* renderer, b2WorldId worldId, std::string& assetDir, int windowWidth, int windowHeight, int tilesVertically)
     : renderer(renderer), worldId(worldId), assetDir(assetDir), windowWidth(windowWidth), windowHeight(windowHeight), tilesVertically(tilesVertically) {
-        scale = static_cast<float>(windowHeight) / (tilesVertically * Tile::TILE_SIZE);
+        scale = 1;
         offsetX = 0;
-        offsetY = windowHeight * -1.0F * scale;
+        offsetY = windowHeight * -1.0F * PIXELS_PER_METER;
     }
 
 Level::~Level() = default;
@@ -64,13 +65,16 @@ void Level::handleErrors() {
 void Level::createTile(const std::string& type, int x, int y, bool isDynamic) {
     b2BodyDef bodyDef = b2DefaultBodyDef();
     if (isDynamic) {
-        bodyDef.type = b2_dynamicBody;
+        //bodyDef.type = b2_dynamicBody;
     }
-    bodyDef.position = b2Vec2{static_cast<float>(x), static_cast<float>(y)};
+    bodyDef.position = b2Vec2{static_cast<float>(x) / PIXELS_PER_METER, static_cast<float>(y) / PIXELS_PER_METER};
 
     b2BodyId bodyId = b2CreateBody(worldId, &bodyDef);
 
-    b2Polygon box = b2MakeBox(tileWidth / 2.0F, tileHeight / 2.0F);
+    // Convert tile size from pixels to meters
+    float halfWidth = (tileWidth / 2.0F) / PIXELS_PER_METER;
+    float halfHeight = (tileHeight / 2.0F) / PIXELS_PER_METER;
+    b2Polygon box = b2MakeBox(halfWidth, halfHeight);
     
     b2ShapeDef shapeDef = b2DefaultShapeDef();
     shapeDef.density = 1.0F;

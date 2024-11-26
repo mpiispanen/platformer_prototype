@@ -97,7 +97,7 @@ auto main(int argc, char *argv[]) -> int {
     }
 
     // Create Character object
-    Character character(renderer, worldId, 100.0F, 30.0F);
+    Character character(renderer, worldId, 500.0F, 250.0F, windowWidth, windowHeight);
 
     // Main game loop
     float timeStep = 1.0F / FRAMES_PER_SECOND;

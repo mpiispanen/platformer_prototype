@@ -37,7 +37,7 @@ void Tile::update() {
 
 void Tile::render(float scale, float offsetX, float offsetY, int windowHeight) {
     b2Vec2 position = b2Body_GetPosition(bodyId);
-    SDL_FPoint screenPos = Box2DToSDL(position, scale, offsetX, offsetY, windowHeight);
+    SDL_FPoint screenPos = Box2DToSDL(position, windowHeight);
 
     SDL_FRect dstRect;
     dstRect.x = static_cast<int>(screenPos.x - (width * scale / 2));
@@ -46,7 +46,6 @@ void Tile::render(float scale, float offsetX, float offsetY, int windowHeight) {
     dstRect.h = static_cast<int>(height * scale);
 
     SDL_RenderTexture(renderer, texture, nullptr, &dstRect);
-
 }
 
 void Tile::updateAnimation(float deltaTime) {

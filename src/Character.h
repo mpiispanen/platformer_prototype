@@ -7,7 +7,7 @@
 
 class Character {
 public:
-    Character(SDL_Renderer* renderer, b2WorldId worldId, float x, float y);
+    Character(SDL_Renderer* renderer, b2WorldId worldId, float x, float y, int windowWidth, int windowHeight);
     ~Character();
 
     void handleInput(const SDL_Event& event);
@@ -21,6 +21,8 @@ private:
     Animation idleAnimation;
     float x;
     float y;
+    int windowWidth;
+    int windowHeight;
 
     void createBody();
     void loadIdleAnimation();
