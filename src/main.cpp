@@ -97,7 +97,7 @@ auto main(int argc, char *argv[]) -> int {
     }
 
     // Create Character object
-    Character character(renderer, worldId, 500.0F, 250.0F, windowWidth, windowHeight);
+    Character character(renderer, worldId, 10.0F, 10.0F, windowWidth, windowHeight);
 
     // Main game loop
     float timeStep = 1.0F / FRAMES_PER_SECOND;
@@ -128,7 +128,7 @@ auto main(int argc, char *argv[]) -> int {
         level.render();
 
         // Render character
-        character.render();
+        character.render(level.getScale(), level.getOffsetX(), level.getOffsetY(), windowWidth, windowHeight);
 
         SDL_RenderPresent(renderer);
     }

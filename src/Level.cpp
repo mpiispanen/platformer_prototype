@@ -8,10 +8,10 @@
 
 Level::Level(SDL_Renderer* renderer, b2WorldId worldId, std::string& assetDir, int windowWidth, int windowHeight, int tilesVertically)
     : renderer(renderer), worldId(worldId), assetDir(assetDir), windowWidth(windowWidth), windowHeight(windowHeight), tilesVertically(tilesVertically) {
-        scale = 1;
-        offsetX = 0;
-        offsetY = windowHeight * -1.0F * PIXELS_PER_METER;
-    }
+    scale = 1.5f;
+    offsetX = windowWidth / PIXELS_PER_METER / 2.0f;
+    offsetY = windowHeight / PIXELS_PER_METER/ 2.0f;
+}
 
 Level::~Level() = default;
 
@@ -53,8 +53,7 @@ auto Level::loadTilemap(const std::string& filename) -> bool {
 
 void Level::render() {
     for (const auto& tile : tiles) {
-        tile->update();
-        tile->render(scale, offsetX, offsetY, windowHeight);
+        tile->render(scale, offsetX, offsetY, windowWidth, windowHeight);
     }
 }
 
@@ -62,10 +61,31 @@ void Level::handleErrors() {
     // Handle errors...
 }
 
+void Level::setScale(float newScale) {
+    scale = newScale;
+}
+
+void Level::setViewportCenter(float centerX, float centerY) {
+    offsetX = centerX;
+    offsetY = centerY;
+}
+
+float Level::getScale() const {
+    return scale;
+}
+
+float Level::getOffsetX() const {
+    return offsetX;
+}
+
+float Level::getOffsetY() const {
+    return offsetY;
+}
+
 void Level::createTile(const std::string& type, int x, int y, bool isDynamic) {
     b2BodyDef bodyDef = b2DefaultBodyDef();
     if (isDynamic) {
-        //bodyDef.type = b2_dynamicBody;
+        bodyDef.type = b2_dynamicBody;
     }
     bodyDef.position = b2Vec2{static_cast<float>(x) / PIXELS_PER_METER, static_cast<float>(y) / PIXELS_PER_METER};
 

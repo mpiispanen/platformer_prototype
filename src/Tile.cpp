@@ -7,13 +7,13 @@ Tile::Tile(SDL_Renderer* renderer, const std::string& type, b2BodyId bodyId, b2S
     : renderer(renderer), bodyId(bodyId), shapeId(shapeId), width(width), height(height), type(type) {
     std::string texturePath = assetDir + "/tiles/" + type + ".png";
     SDL_Surface* surface = IMG_Load(texturePath.c_str());
-    if (surface == nullptr) {
+    if (!surface) {
         std::cerr << "Failed to load texture: " << texturePath << " Error: " << SDL_GetError() << std::endl;
         return;
     }
     texture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_DestroySurface(surface);
-    if (texture == nullptr) {
+    if (!texture) {
         std::cerr << "Failed to create texture from surface: " << SDL_GetError() << std::endl;
     }
 }
@@ -35,9 +35,9 @@ void Tile::update() {
     worldPos = transform.p;
 }
 
-void Tile::render(float scale, float offsetX, float offsetY, int windowHeight) {
+void Tile::render(float scale, float offsetX, float offsetY, uint32_t windowWidth, uint32_t windowHeight) {
     b2Vec2 position = b2Body_GetPosition(bodyId);
-    SDL_FPoint screenPos = Box2DToSDL(position, windowHeight);
+    SDL_FPoint screenPos = Box2DToSDL(position, scale, offsetX, offsetY, windowWidth, windowHeight);
 
     SDL_FRect dstRect;
     dstRect.x = static_cast<int>(screenPos.x - (width * scale / 2));

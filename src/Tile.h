@@ -14,7 +14,7 @@ public:
     ~Tile();
 
     void update();
-    void render(float scale, float offsetX, float offsetY, int windowHeight);
+    void render(float scale, float offsetX, float offsetY, uint32_t windowWidth, uint32_t windowHeight);
     void updateAnimation(float deltaTime);
 
     [[nodiscard]] auto getX() const -> int;

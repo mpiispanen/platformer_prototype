@@ -7,7 +7,7 @@
 constexpr float CHARACTER_SCALE = 4.0F;
 constexpr float TILE_SIZE = 32.0F;
 
-Character::Character(SDL_Renderer* renderer, b2WorldId worldId, float x, float y, int windowWidth, int windowHeight)
+Character::Character(SDL_Renderer* renderer, b2WorldId worldId, float x, float y, uint32_t windowWidth, uint32_t windowHeight)
     : renderer(renderer), worldId(worldId), x(x), y(y), windowWidth(windowWidth), windowHeight(windowHeight) {
     createBody();
     loadIdleAnimation();
@@ -32,17 +32,18 @@ void Character::update(float deltaTime) {
     idleAnimation.update(deltaTime);
 }
 
-void Character::render() {
+void Character::render(float extraScale, float offsetX, float offsetY, uint32_t windowWidth, uint32_t windowHeight) {
     b2Vec2 position = b2Body_GetPosition(bodyId);
-    SDL_FPoint screenPos = Box2DToSDL(position, windowHeight);
+    SDL_FPoint screenPos = Box2DToSDL(position, extraScale, offsetX, offsetY, windowWidth, windowHeight);
 
+    float scale = PIXELS_PER_METER * extraScale;
     SDL_Texture* currentFrame = idleAnimation.getCurrentFrame();
     if (currentFrame != nullptr) {
         SDL_FRect dstRect = {
-            screenPos.x - ((TILE_SIZE * CHARACTER_SCALE) / 2),
-            screenPos.y - ((TILE_SIZE * CHARACTER_SCALE) / 2),
-            TILE_SIZE * CHARACTER_SCALE,
-            TILE_SIZE * CHARACTER_SCALE
+            screenPos.x - ((TILE_SIZE * CHARACTER_SCALE) / 2 * extraScale),
+            screenPos.y - ((TILE_SIZE * CHARACTER_SCALE) / 2 * extraScale),
+            TILE_SIZE * CHARACTER_SCALE * extraScale,
+            TILE_SIZE * CHARACTER_SCALE * extraScale
         };
         SDL_RenderTexture(renderer, currentFrame, nullptr, &dstRect);
     }
@@ -51,7 +52,7 @@ void Character::render() {
 void Character::createBody() {
     b2BodyDef bodyDef = b2DefaultBodyDef();
     bodyDef.type = b2_dynamicBody;
-    bodyDef.position = b2Vec2{x / PIXELS_PER_METER, y / PIXELS_PER_METER};
+    bodyDef.position = b2Vec2{x, y};
 
     bodyId = b2CreateBody(worldId, &bodyDef);
 
