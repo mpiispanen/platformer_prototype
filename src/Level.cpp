@@ -41,7 +41,7 @@ auto Level::loadTilemap(const std::string& filename) -> bool {
                         createTile("ground", x * tileWidth, (height - y) * tileHeight, false);
                     }
                     else if (tileId == 2) {
-                        createTile("rectangle", x * tileWidth, (height - y) * tileHeight, true);
+                        createTile("rectangle", x * tileWidth, (height - y) * tileHeight, false);
                     }
                 }
             }

@@ -9,8 +9,8 @@ Animation::~Animation() {
     }
 }
 
-void Animation::addFrame(SDL_Texture* texture, int duration) {
-    frames.push_back({texture, duration});
+void Animation::addFrame(SDL_Texture* texture, uint32_t duration_ms) {
+    frames.push_back({texture, duration_ms});
 }
 
 void Animation::update(float deltaTime) {
@@ -18,7 +18,8 @@ void Animation::update(float deltaTime) {
         return;
     }
 
-    elapsedTime += deltaTime;
+    constexpr uint32_t MS_PER_SECOND = 1000;
+    elapsedTime += deltaTime * MS_PER_SECOND;
     if (elapsedTime >= frames[currentFrameIndex].duration) {
         elapsedTime = 0.0F;
         currentFrameIndex = (currentFrameIndex + 1) % frames.size();

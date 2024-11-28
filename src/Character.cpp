@@ -27,8 +27,6 @@ void Character::update(float deltaTime) {
     x = position.x;
     y = position.y;
 
-    std::cout << "Character position: (" << x << ", " << y << ")" << std::endl;
-
     idleAnimation.update(deltaTime);
 }
 
@@ -84,7 +82,7 @@ void Character::loadIdleAnimation() {
         SDL_BlitSurface(surface, &srcRect, frameSurface, nullptr);
 
         SDL_Texture* frameTexture = SDL_CreateTextureFromSurface(renderer, frameSurface);
-        idleAnimation.addFrame(frameTexture, 100);
+        idleAnimation.addFrame(frameTexture, 1000);
 
         SDL_DestroySurface(frameSurface);
     }
