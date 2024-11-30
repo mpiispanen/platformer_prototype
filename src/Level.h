@@ -18,6 +18,13 @@ public:
     void render();
     void handleErrors();
 
+    void setScale(float newScale);
+    void setViewportCenter(float centerX, float centerY);
+
+    float getScale() const;
+    float getOffsetX() const;
+    float getOffsetY() const;
+
 private:
     void createTile(const std::string& type, int x, int y, bool isDynamic);
 

@@ -9,14 +9,14 @@ public:
     Animation();
     ~Animation();
 
-    void addFrame(SDL_Texture* texture, int duration);
+    void addFrame(SDL_Texture* texture, uint32_t duration_ms);
     void update(float deltaTime);
     [[nodiscard]] auto getCurrentFrame() const -> SDL_Texture*;
 
 private:
     struct Frame {
         SDL_Texture* texture;
-        int duration; // Duration in milliseconds
+        uint32_t duration; // Duration in milliseconds
     };
 
     std::vector<Frame> frames;

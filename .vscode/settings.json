@@ -64,6 +64,7 @@
         "valarray": "cpp",
         "variant": "cpp",
         "vector": "cpp",
-        "type_traits": "cpp"
+        "type_traits": "cpp",
+        "__availability": "cpp"
     }
 }
