@@ -1,14 +1,22 @@
 #include "Character.h"
 #include "Utils.h"
 #include <SDL3_image/SDL_image.h>
+#include <nlohmann/json.hpp>
 #include <iostream>
+#include <fstream>
 
 // Scale factor for character size (4x)
 constexpr float CHARACTER_SCALE = 4.0F;
 constexpr float TILE_SIZE = 32.0F;
 
-Character::Character(SDL_Renderer* renderer, b2WorldId worldId, float x, float y, uint32_t windowWidth, uint32_t windowHeight)
+Character::Character(SDL_Renderer* renderer, b2WorldId worldId, float x, float y, uint32_t windowWidth, uint32_t windowHeight, const nlohmann::json& animationConfig)
     : renderer(renderer), worldId(worldId), x(x), y(y), windowWidth(windowWidth), windowHeight(windowHeight), maxWalkingSpeed(5.0f), isMoving(false) {
+    // Store the provided configuration data
+    for (const auto& animation : animationConfig["animations"]) {
+        std::string name = animation["name"];
+        animationConfigs[name] = animation;
+    }
+    
     createBody();
     loadIdleAnimation();
     loadWalkingAnimation();
@@ -85,7 +93,6 @@ void Character::render(float extraScale, float offsetX, float offsetY, uint32_t 
     b2Vec2 position = b2Body_GetPosition(bodyId);
     SDL_FPoint screenPos = Box2DToSDL(position, extraScale, offsetX, offsetY, windowWidth, windowHeight);
 
-    //float scale = PIXELS_PER_METER * extraScale;
     SDL_Texture* currentFrame = moving ? walkingAnimation.getCurrentFrame() : idleAnimation.getCurrentFrame();
     if (currentFrame != nullptr) {
         SDL_FRect dstRect = {
@@ -127,15 +134,17 @@ void Character::createBody() {
 }
 
 void Character::loadIdleAnimation() {
-    SDL_Surface* surface = IMG_Load("assets/characters/cat/idle.png");
+    auto& config = animationConfigs["idle"];
+    SDL_Surface* surface = IMG_Load(config["filePath"].get<std::string>().c_str());
     if (surface == nullptr) {
         std::cerr << "Failed to load idle animation: " << SDL_GetError() << std::endl;
         return;
     }
 
-    int frameWidth = 32;
-    int frameHeight = 32;
-    int frameCount = surface->w / frameWidth;
+    int frameWidth = config["frameSize"]["width"];
+    int frameHeight = config["frameSize"]["height"];
+    int frameCount = config["frameCount"];
+    int animationSpeed = static_cast<int>(config["animationSpeed"].get<float>() * 1000);
 
     for (int i = 0; i < frameCount; ++i) {
         SDL_Surface* frameSurface = SDL_CreateSurface(frameWidth, frameHeight, SDL_PIXELFORMAT_RGBA8888);
@@ -143,7 +152,7 @@ void Character::loadIdleAnimation() {
         SDL_BlitSurface(surface, &srcRect, frameSurface, nullptr);
 
         SDL_Texture* frameTexture = SDL_CreateTextureFromSurface(renderer, frameSurface);
-        idleAnimation.addFrame(frameTexture, 1000);
+        idleAnimation.addFrame(frameTexture, animationSpeed);
 
         SDL_DestroySurface(frameSurface);
     }
@@ -152,15 +161,17 @@ void Character::loadIdleAnimation() {
 }
 
 void Character::loadWalkingAnimation() {
-    SDL_Surface* surface = IMG_Load("assets/characters/cat/walking.png");
+    auto& config = animationConfigs["walking"];
+    SDL_Surface* surface = IMG_Load(config["filePath"].get<std::string>().c_str());
     if (surface == nullptr) {
         std::cerr << "Failed to load walking animation: " << SDL_GetError() << std::endl;
         return;
     }
 
-    int frameWidth = 32;
-    int frameHeight = 32;
-    int frameCount = surface->w / frameWidth;
+    int frameWidth = config["frameSize"]["width"];
+    int frameHeight = config["frameSize"]["height"];
+    int frameCount = config["frameCount"];
+    int animationSpeed = static_cast<int>(config["animationSpeed"].get<float>() * 1000);
 
     for (int i = 0; i < frameCount; ++i) {
         SDL_Surface* frameSurface = SDL_CreateSurface(frameWidth, frameHeight, SDL_PIXELFORMAT_RGBA8888);
@@ -168,7 +179,7 @@ void Character::loadWalkingAnimation() {
         SDL_BlitSurface(surface, &srcRect, frameSurface, nullptr);
 
         SDL_Texture* frameTexture = SDL_CreateTextureFromSurface(renderer, frameSurface);
-        walkingAnimation.addFrame(frameTexture, 1000);
+        walkingAnimation.addFrame(frameTexture, animationSpeed);
 
         SDL_DestroySurface(frameSurface);
     }

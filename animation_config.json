@@ -1,0 +1,24 @@
+{
+  "animations": [
+    {
+      "name": "idle",
+      "filePath": "assets/characters/cat/idle.png",
+      "animationSpeed": 0.5,
+      "frameSize": { "width": 32, "height": 32 },
+      "frameCount": 4,
+      "gridDimensions": { "rows": 1, "columns": 4 },
+      "characterSize": { "width": 32, "height": 32 },
+      "characterPosition": { "x": 16, "y": 16 }
+    },
+    {
+      "name": "walking",
+      "filePath": "assets/characters/cat/walking.png",
+      "animationSpeed": 0.5,
+      "frameSize": { "width": 32, "height": 32 },
+      "frameCount": 8,
+      "gridDimensions": { "rows": 1, "columns": 6 },
+      "characterSize": { "width": 32, "height": 32 },
+      "characterPosition": { "x": 16, "y": 16 }
+    }
+  ]
+}
