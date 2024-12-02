@@ -60,6 +60,16 @@ auto main(int argc, char *argv[]) -> int {
     float maxWalkingSpeed = config["maxWalkingSpeed"];
     std::string preferredInputMethod = config["preferredInputMethod"];
 
+    // Load animation configuration file
+    std::ifstream animationConfigFile("animation_config.json");
+    if (!animationConfigFile.is_open()) {
+        std::cerr << "Failed to open animation_config.json" << std::endl;
+        return 1;
+    }
+    nlohmann::json animationConfig;
+    animationConfigFile >> animationConfig;
+    animationConfigFile.close();
+
     // Initialize SDL with video subsystem
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
@@ -112,7 +122,7 @@ auto main(int argc, char *argv[]) -> int {
     }
 
     // Create Character object
-    Character character(renderer, worldId, 15.0F, 20.0F, windowWidth, windowHeight);
+    Character character(renderer, worldId, 15.0F, 20.0F, windowWidth, windowHeight, animationConfig);
     character.setMaxWalkingSpeed(maxWalkingSpeed);
 
     // Main game loop
