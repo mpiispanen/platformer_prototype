@@ -105,3 +105,16 @@ void Level::createTile(const std::string& type, int x, int y, bool isDynamic) {
     std::shared_ptr<Tile> tile = std::make_shared<Tile>(renderer, type, bodyId, shapeId, tileWidth, tileHeight, assetDir);
     tiles.push_back(tile);
 }
+
+void Level::update(float deltaTime, const b2Vec2& characterPosition) {
+    // Adjust the camera position based on the character's position
+    offsetX = characterPosition.x;
+    offsetY = characterPosition.y;
+
+    // Ensure the camera does not move beyond the level boundaries by clamping its position
+    float levelWidth = tileWidth * tiles.size() / PIXELS_PER_METER;
+    float levelHeight = tileHeight * tiles.size() / PIXELS_PER_METER;
+
+    offsetX = std::clamp(offsetX, windowWidth / (2.0f * PIXELS_PER_METER), levelWidth - windowWidth / (2.0f * PIXELS_PER_METER));
+    offsetY = std::clamp(offsetY, windowHeight / (2.0f * PIXELS_PER_METER), levelHeight - windowHeight / (2.0f * PIXELS_PER_METER));
+}

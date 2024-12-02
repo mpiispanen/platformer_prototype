@@ -17,6 +17,7 @@ public:
     auto loadTilemap(const std::string& filename) -> bool;
     void render();
     void handleErrors();
+    void update(float deltaTime, const b2Vec2& characterPosition);
 
     void setScale(float newScale);
     void setViewportCenter(float centerX, float centerY);

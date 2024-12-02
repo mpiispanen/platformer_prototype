@@ -3,6 +3,8 @@
 #include <string>
 #include <cxxopts.hpp>
 #include <box2d/box2d.h>
+#include <fstream>
+#include <nlohmann/json.hpp>
 #include "Level.h"
 #include "Character.h"
 
@@ -44,6 +46,19 @@ auto main(int argc, char *argv[]) -> int {
         std::cerr << "Error parsing options: " << e.what() << std::endl;
         return 1;
     }
+
+    // Load configuration file
+    std::ifstream configFile("config.json");
+    if (!configFile.is_open()) {
+        std::cerr << "Failed to open config.json" << std::endl;
+        return 1;
+    }
+    nlohmann::json config;
+    configFile >> config;
+    configFile.close();
+
+    float maxWalkingSpeed = config["maxWalkingSpeed"];
+    std::string preferredInputMethod = config["preferredInputMethod"];
 
     // Initialize SDL with video subsystem
     if (!SDL_Init(SDL_INIT_VIDEO)) {
@@ -97,7 +112,8 @@ auto main(int argc, char *argv[]) -> int {
     }
 
     // Create Character object
-    Character character(renderer, worldId, 20.0F, 20.0F, windowWidth, windowHeight);
+    Character character(renderer, worldId, 15.0F, 20.0F, windowWidth, windowHeight);
+    character.setMaxWalkingSpeed(maxWalkingSpeed);
 
     // Main game loop
     float timeStep = 1.0F / FRAMES_PER_SECOND;

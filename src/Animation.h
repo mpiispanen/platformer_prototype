@@ -1,27 +1,30 @@
 #ifndef ANIMATION_H
 #define ANIMATION_H
 
-#include <vector>
 #include <SDL3/SDL.h>
+#include <vector>
 
 class Animation {
 public:
     Animation();
     ~Animation();
 
-    void addFrame(SDL_Texture* texture, uint32_t duration_ms);
+    void addFrame(SDL_Texture* texture, int duration);
     void update(float deltaTime);
-    [[nodiscard]] auto getCurrentFrame() const -> SDL_Texture*;
+    SDL_Texture* getCurrentFrame() const;
+    SDL_FlipMode getFlip() const;
+    void setFlip(SDL_FlipMode flip);
 
 private:
     struct Frame {
         SDL_Texture* texture;
-        uint32_t duration; // Duration in milliseconds
+        int duration;
     };
 
     std::vector<Frame> frames;
     int currentFrameIndex;
-    float elapsedTime;
+    float currentTime;
+    SDL_FlipMode flip;
 };
 
 #endif // ANIMATION_H

@@ -1,7 +1,6 @@
 #include "Animation.h"
 
-Animation::Animation()
-    : currentFrameIndex(0), elapsedTime(0.0F) {}
+Animation::Animation() : currentFrameIndex(0), currentTime(0.0f), flip(SDL_FLIP_NONE) {}
 
 Animation::~Animation() {
     for (auto& frame : frames) {
@@ -9,25 +8,30 @@ Animation::~Animation() {
     }
 }
 
-void Animation::addFrame(SDL_Texture* texture, uint32_t duration_ms) {
-    frames.push_back({texture, duration_ms});
+void Animation::addFrame(SDL_Texture* texture, int duration) {
+    frames.push_back({texture, duration});
 }
 
 void Animation::update(float deltaTime) {
-    if (frames.empty()) {
-        return;
-    }
+    if (frames.empty()) return;
 
-    constexpr uint32_t MS_PER_SECOND = 1000;
-    elapsedTime += deltaTime * MS_PER_SECOND;
-    if (elapsedTime >= frames[currentFrameIndex].duration) {
-        elapsedTime = 0.0F;
+    const uint32_t SECOND_IN_MILLISECONDS = 1000;
+    currentTime += deltaTime * SECOND_IN_MILLISECONDS;
+    if (currentTime >= frames[currentFrameIndex].duration) {
+        currentTime = 0.0f;
         currentFrameIndex = (currentFrameIndex + 1) % frames.size();
     }
 }
 
-auto Animation::getCurrentFrame() const -> SDL_Texture* {
-    if (frames.empty()) { return nullptr;
-}
+SDL_Texture* Animation::getCurrentFrame() const {
+    if (frames.empty()) return nullptr;
     return frames[currentFrameIndex].texture;
+}
+
+SDL_FlipMode Animation::getFlip() const {
+    return flip;
+}
+
+void Animation::setFlip(SDL_FlipMode flip) {
+    this->flip = flip;
 }
