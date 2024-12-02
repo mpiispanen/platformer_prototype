@@ -13,19 +13,35 @@ public:
     void handleInput(const SDL_Event& event);
     void update(float deltaTime);
     void render(float scale, float offsetX, float offsetY, uint32_t windowWidth, uint32_t windowHeight);
+    void setMaxWalkingSpeed(float speed);
 
 private:
     SDL_Renderer* renderer;
     b2WorldId worldId;
     b2BodyId bodyId;
     Animation idleAnimation;
+    Animation walkingAnimation;
+    
+    bool isMoving;
+    float maxWalkingSpeed;
+    float acceleration;
+    float deceleration;
     float x;
     float y;
     uint32_t windowWidth;
     uint32_t windowHeight;
 
+    bool moving {false};
+    bool movingLeft {false};
+    bool movingRight {false};
+    bool movingUp {false};
+    bool movingDown {false};
+    bool facingRight {true};
+
     void createBody();
     void loadIdleAnimation();
+    void loadWalkingAnimation();
+    void flipAnimation(bool faceRight);
 };
 
 #endif // CHARACTER_H

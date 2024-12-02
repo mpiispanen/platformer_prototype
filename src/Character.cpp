@@ -8,9 +8,10 @@ constexpr float CHARACTER_SCALE = 4.0F;
 constexpr float TILE_SIZE = 32.0F;
 
 Character::Character(SDL_Renderer* renderer, b2WorldId worldId, float x, float y, uint32_t windowWidth, uint32_t windowHeight)
-    : renderer(renderer), worldId(worldId), x(x), y(y), windowWidth(windowWidth), windowHeight(windowHeight) {
+    : renderer(renderer), worldId(worldId), x(x), y(y), windowWidth(windowWidth), windowHeight(windowHeight), maxWalkingSpeed(5.0f), isMoving(false) {
     createBody();
     loadIdleAnimation();
+    loadWalkingAnimation();
 }
 
 Character::~Character() {
@@ -18,7 +19,30 @@ Character::~Character() {
 }
 
 void Character::handleInput(const SDL_Event& event) {
-    // Handle user input here
+    if (event.type == SDL_EVENT_KEY_DOWN || event.type == SDL_EVENT_KEY_UP) {
+        bool keyDown = (event.type == SDL_EVENT_KEY_DOWN);
+
+        switch (event.key.key) {
+            case SDLK_LEFT:
+            case SDLK_A:
+                movingLeft = keyDown;
+                break;
+            case SDLK_RIGHT:
+            case SDLK_D:
+                movingRight = keyDown;
+                break;
+            case SDLK_UP:
+            case SDLK_W:
+                movingUp = keyDown;
+                break;
+            case SDLK_DOWN:
+            case SDLK_S:
+                movingDown = keyDown;
+                break;
+            default:
+                break;
+        }
+    }
 }
 
 void Character::update(float deltaTime) {
@@ -27,15 +51,42 @@ void Character::update(float deltaTime) {
     x = position.x;
     y = position.y;
 
-    idleAnimation.update(deltaTime);
+    b2Vec2 velocity = b2Vec2_zero;
+
+    if (movingLeft) {
+        velocity.x -= maxWalkingSpeed;
+        facingRight = false;
+    }
+    if (movingRight) {
+        velocity.x += maxWalkingSpeed;
+        facingRight = true;
+    }
+    if (movingUp) {
+        velocity.y += maxWalkingSpeed;
+    }
+    if (movingDown) {
+        velocity.y -= maxWalkingSpeed;
+    }
+
+    b2Body_SetLinearVelocity(bodyId, velocity);
+
+    if (velocity.x != 0 || velocity.y != 0) {
+        walkingAnimation.update(deltaTime);
+        moving = true;
+    } else {
+        idleAnimation.update(deltaTime);
+        moving = false;
+    }
+
+    flipAnimation(facingRight);
 }
 
 void Character::render(float extraScale, float offsetX, float offsetY, uint32_t windowWidth, uint32_t windowHeight) {
     b2Vec2 position = b2Body_GetPosition(bodyId);
     SDL_FPoint screenPos = Box2DToSDL(position, extraScale, offsetX, offsetY, windowWidth, windowHeight);
 
-    float scale = PIXELS_PER_METER * extraScale;
-    SDL_Texture* currentFrame = idleAnimation.getCurrentFrame();
+    //float scale = PIXELS_PER_METER * extraScale;
+    SDL_Texture* currentFrame = moving ? walkingAnimation.getCurrentFrame() : idleAnimation.getCurrentFrame();
     if (currentFrame != nullptr) {
         SDL_FRect dstRect = {
             screenPos.x - ((TILE_SIZE * CHARACTER_SCALE) / 2 * extraScale),
@@ -43,8 +94,18 @@ void Character::render(float extraScale, float offsetX, float offsetY, uint32_t 
             TILE_SIZE * CHARACTER_SCALE * extraScale,
             TILE_SIZE * CHARACTER_SCALE * extraScale
         };
-        SDL_RenderTexture(renderer, currentFrame, nullptr, &dstRect);
+        SDL_RenderTextureRotated(renderer, currentFrame, nullptr, &dstRect, 0.0, nullptr, moving ? walkingAnimation.getFlip() : idleAnimation.getFlip());
     }
+}
+
+void Character::flipAnimation(bool faceRight) {
+    SDL_FlipMode flip = faceRight ? SDL_FLIP_NONE : SDL_FLIP_HORIZONTAL;
+    idleAnimation.setFlip(flip);
+    walkingAnimation.setFlip(flip);
+}
+
+void Character::setMaxWalkingSpeed(float speed) {
+    maxWalkingSpeed = speed;
 }
 
 void Character::createBody() {
@@ -60,8 +121,8 @@ void Character::createBody() {
     b2Polygon box = b2MakeBox(halfWidth, halfHeight);
 
     b2ShapeDef shapeDef = b2DefaultShapeDef();
-    shapeDef.density = 1.0F;
-    shapeDef.friction = 0.3F;
+    shapeDef.density = 5.0F;
+    shapeDef.friction = 1.0F;
     b2CreatePolygonShape(bodyId, &shapeDef, &box);
 }
 
@@ -83,6 +144,31 @@ void Character::loadIdleAnimation() {
 
         SDL_Texture* frameTexture = SDL_CreateTextureFromSurface(renderer, frameSurface);
         idleAnimation.addFrame(frameTexture, 1000);
+
+        SDL_DestroySurface(frameSurface);
+    }
+
+    SDL_DestroySurface(surface);
+}
+
+void Character::loadWalkingAnimation() {
+    SDL_Surface* surface = IMG_Load("assets/characters/cat/walking.png");
+    if (surface == nullptr) {
+        std::cerr << "Failed to load walking animation: " << SDL_GetError() << std::endl;
+        return;
+    }
+
+    int frameWidth = 32;
+    int frameHeight = 32;
+    int frameCount = surface->w / frameWidth;
+
+    for (int i = 0; i < frameCount; ++i) {
+        SDL_Surface* frameSurface = SDL_CreateSurface(frameWidth, frameHeight, SDL_PIXELFORMAT_RGBA8888);
+        SDL_Rect srcRect = {i * frameWidth, 0, frameWidth, frameHeight};
+        SDL_BlitSurface(surface, &srcRect, frameSurface, nullptr);
+
+        SDL_Texture* frameTexture = SDL_CreateTextureFromSurface(renderer, frameSurface);
+        walkingAnimation.addFrame(frameTexture, 1000);
 
         SDL_DestroySurface(frameSurface);
     }
