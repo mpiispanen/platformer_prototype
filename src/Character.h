@@ -26,6 +26,7 @@ private:
     Animation walkingAnimation;
     
     bool isMoving;
+    SDL_FRect characterRectangle;
     float maxWalkingSpeed;
     float acceleration;
     float deceleration;
