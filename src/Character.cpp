@@ -6,17 +6,19 @@
 #include <fstream>
 
 // Scale factor for character size (4x)
-constexpr float CHARACTER_SCALE = 4.0F;
 constexpr float TILE_SIZE = 32.0F;
 
-Character::Character(SDL_Renderer* renderer, b2WorldId worldId, float x, float y, uint32_t windowWidth, uint32_t windowHeight, const nlohmann::json& animationConfig)
+Character::Character(SDL_Renderer* renderer, b2WorldId worldId, float x, float y, uint32_t windowWidth, uint32_t windowHeight, const nlohmann::json& characterConfig)
     : renderer(renderer), worldId(worldId), x(x), y(y), windowWidth(windowWidth), windowHeight(windowHeight), maxWalkingSpeed(5.0f), isMoving(false) {
     // Store the provided configuration data
-    for (const auto& animation : animationConfig["animations"]) {
+    for (const auto& animation : characterConfig["animations"]) {
         std::string name = animation["name"];
         animationConfigs[name] = animation;
     }
-    
+
+    // Read character size from config
+    characterRectangle = {characterConfig["initialPosition"]["x"], characterConfig["initialPosition"]["y"], characterConfig["characterSize"]["width"], characterConfig["characterSize"]["height"]};
+
     createBody();
     loadIdleAnimation();
     loadWalkingAnimation();
@@ -96,10 +98,10 @@ void Character::render(float extraScale, float offsetX, float offsetY, uint32_t 
     SDL_Texture* currentFrame = moving ? walkingAnimation.getCurrentFrame() : idleAnimation.getCurrentFrame();
     if (currentFrame != nullptr) {
         SDL_FRect dstRect = {
-            screenPos.x - ((TILE_SIZE * CHARACTER_SCALE) / 2 * extraScale),
-            screenPos.y - ((TILE_SIZE * CHARACTER_SCALE) / 2 * extraScale),
-            TILE_SIZE * CHARACTER_SCALE * extraScale,
-            TILE_SIZE * CHARACTER_SCALE * extraScale
+            screenPos.x - ((characterRectangle.w) / 2 * extraScale),
+            screenPos.y - ((characterRectangle.h) / 2 * extraScale),
+            characterRectangle.w * extraScale,
+            characterRectangle.h * extraScale
         };
         SDL_RenderTextureRotated(renderer, currentFrame, nullptr, &dstRect, 0.0, nullptr, moving ? walkingAnimation.getFlip() : idleAnimation.getFlip());
     }
@@ -123,8 +125,8 @@ void Character::createBody() {
     bodyId = b2CreateBody(worldId, &bodyDef);
 
     // Scale physics body to match visual size (in meters)
-    float halfWidth = (TILE_SIZE * CHARACTER_SCALE) / (2.0F * PIXELS_PER_METER);
-    float halfHeight = (TILE_SIZE * CHARACTER_SCALE) / (2.0F * PIXELS_PER_METER);
+    float halfWidth = (characterRectangle.w) / (2.0F * PIXELS_PER_METER);
+    float halfHeight = (characterRectangle.h) / (2.0F * PIXELS_PER_METER);
     b2Polygon box = b2MakeBox(halfWidth, halfHeight);
 
     b2ShapeDef shapeDef = b2DefaultShapeDef();
@@ -143,12 +145,21 @@ void Character::loadIdleAnimation() {
 
     int frameWidth = config["frameSize"]["width"];
     int frameHeight = config["frameSize"]["height"];
+    int characterSpriteWidth = config["characterSpriteSize"]["width"];
+    int characterSpriteHeight = config["characterSpriteSize"]["height"];
+    int characterSpritePosX = config["characterSpritePosition"]["x"];
+    int characterSpritePosY = config["characterSpritePosition"]["y"];
     int frameCount = config["frameCount"];
     int animationSpeed = static_cast<int>(config["animationSpeed"].get<float>() * 1000);
 
     for (int i = 0; i < frameCount; ++i) {
-        SDL_Surface* frameSurface = SDL_CreateSurface(frameWidth, frameHeight, SDL_PIXELFORMAT_RGBA8888);
-        SDL_Rect srcRect = {i * frameWidth, 0, frameWidth, frameHeight};
+        SDL_Surface* frameSurface = SDL_CreateSurface(characterSpriteWidth, characterSpriteHeight, SDL_PIXELFORMAT_RGBA8888);
+        SDL_Rect srcRect = {
+            characterSpritePosX + i * frameWidth - characterSpriteWidth/2,
+            characterSpritePosY + characterSpriteHeight/2,
+            characterSpriteWidth,
+            characterSpriteHeight
+        };
         SDL_BlitSurface(surface, &srcRect, frameSurface, nullptr);
 
         SDL_Texture* frameTexture = SDL_CreateTextureFromSurface(renderer, frameSurface);
@@ -170,12 +181,21 @@ void Character::loadWalkingAnimation() {
 
     int frameWidth = config["frameSize"]["width"];
     int frameHeight = config["frameSize"]["height"];
+    int characterSpriteWidth = config["characterSpriteSize"]["width"];
+    int characterSpriteHeight = config["characterSpriteSize"]["height"];
+    int characterSpritePosX = config["characterSpritePosition"]["x"];
+    int characterSpritePosY = config["characterSpritePosition"]["y"];
     int frameCount = config["frameCount"];
     int animationSpeed = static_cast<int>(config["animationSpeed"].get<float>() * 1000);
 
     for (int i = 0; i < frameCount; ++i) {
-        SDL_Surface* frameSurface = SDL_CreateSurface(frameWidth, frameHeight, SDL_PIXELFORMAT_RGBA8888);
-        SDL_Rect srcRect = {i * frameWidth, 0, frameWidth, frameHeight};
+        SDL_Surface* frameSurface = SDL_CreateSurface(characterSpriteWidth, characterSpriteHeight, SDL_PIXELFORMAT_RGBA8888);
+        SDL_Rect srcRect = {
+            characterSpritePosX + i * frameWidth - characterSpriteWidth/2,
+            characterSpritePosY + characterSpriteHeight/2,
+            characterSpriteWidth,
+            characterSpriteHeight
+        };
         SDL_BlitSurface(surface, &srcRect, frameSurface, nullptr);
 
         SDL_Texture* frameTexture = SDL_CreateTextureFromSurface(renderer, frameSurface);
