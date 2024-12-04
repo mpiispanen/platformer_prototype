@@ -22,9 +22,9 @@ public:
     void setScale(float newScale);
     void setViewportCenter(float centerX, float centerY);
 
-    float getScale() const;
-    float getOffsetX() const;
-    float getOffsetY() const;
+    [[nodiscard]] auto getScale() const -> float;
+    [[nodiscard]] auto getOffsetX() const -> float;
+    [[nodiscard]] auto getOffsetY() const -> float;
 
 private:
     void createTile(const std::string& type, int x, int y, bool isDynamic);

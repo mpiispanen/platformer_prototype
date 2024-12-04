@@ -10,7 +10,7 @@
 constexpr float TILE_SIZE = 32.0F;
 
 Character::Character(SDL_Renderer* renderer, b2WorldId worldId, float x, float y, uint32_t windowWidth, uint32_t windowHeight, const nlohmann::json& characterConfig)
-    : renderer(renderer), worldId(worldId), x(x), y(y), windowWidth(windowWidth), windowHeight(windowHeight), maxWalkingSpeed(5.0f), isMoving(false) {
+    : renderer(renderer), worldId(worldId), x(x), y(y), windowWidth(windowWidth), windowHeight(windowHeight), maxWalkingSpeed(5.0F), isMoving(false) {
     spdlog::debug("Initializing character at position ({}, {})", x, y);
 
     // Store the provided configuration data
@@ -20,7 +20,7 @@ Character::Character(SDL_Renderer* renderer, b2WorldId worldId, float x, float y
     }
 
     // Read character size from config
-    characterRectangle = {characterConfig["initialPosition"]["x"], characterConfig["initialPosition"]["y"], characterConfig["characterSize"]["width"], characterConfig["characterSize"]["height"]};
+    characterRectangle = {.x=characterConfig["initialPosition"]["x"], .y=characterConfig["initialPosition"]["y"], .w=characterConfig["characterSize"]["width"], .h=characterConfig["characterSize"]["height"]};
 
     createBody();
     loadIdleAnimation();
@@ -159,8 +159,8 @@ void Character::loadIdleAnimation() {
     for (int i = 0; i < frameCount; ++i) {
         SDL_Surface* frameSurface = SDL_CreateSurface(characterSpriteWidth, characterSpriteHeight, SDL_PIXELFORMAT_RGBA8888);
         SDL_Rect srcRect = {
-            characterSpritePosX + i * frameWidth - characterSpriteWidth/2,
-            characterSpritePosY + characterSpriteHeight/2,
+            characterSpritePosX + (i * frameWidth) - (characterSpriteWidth/2),
+            characterSpritePosY + (characterSpriteHeight/2),
             characterSpriteWidth,
             characterSpriteHeight
         };
@@ -195,8 +195,8 @@ void Character::loadWalkingAnimation() {
     for (int i = 0; i < frameCount; ++i) {
         SDL_Surface* frameSurface = SDL_CreateSurface(characterSpriteWidth, characterSpriteHeight, SDL_PIXELFORMAT_RGBA8888);
         SDL_Rect srcRect = {
-            characterSpritePosX + i * frameWidth - characterSpriteWidth/2,
-            characterSpritePosY + characterSpriteHeight/2,
+            characterSpritePosX + (i * frameWidth) - (characterSpriteWidth/2),
+            characterSpritePosY + (characterSpriteHeight/2),
             characterSpriteWidth,
             characterSpriteHeight
         };

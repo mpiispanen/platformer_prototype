@@ -9,9 +9,9 @@
 
 Level::Level(SDL_Renderer* renderer, b2WorldId worldId, std::string& assetDir, int windowWidth, int windowHeight, int tilesVertically)
     : renderer(renderer), worldId(worldId), assetDir(assetDir), windowWidth(windowWidth), windowHeight(windowHeight), tilesVertically(tilesVertically) {
-    scale = 1.5f;
-    offsetX = windowWidth / PIXELS_PER_METER / 2.0f;
-    offsetY = windowHeight / PIXELS_PER_METER/ 2.0f;
+    scale = 1.5F;
+    offsetX = windowWidth / PIXELS_PER_METER / 2.0F;
+    offsetY = windowHeight / PIXELS_PER_METER/ 2.0F;
     spdlog::debug("Level initialized with scale: {}, offsetX: {}, offsetY: {}", scale, offsetX, offsetY);
 }
 
@@ -75,15 +75,15 @@ void Level::setViewportCenter(float centerX, float centerY) {
     spdlog::debug("Viewport center set to: ({}, {})", centerX, centerY);
 }
 
-float Level::getScale() const {
+auto Level::getScale() const -> float {
     return scale;
 }
 
-float Level::getOffsetX() const {
+auto Level::getOffsetX() const -> float {
     return offsetX;
 }
 
-float Level::getOffsetY() const {
+auto Level::getOffsetY() const -> float {
     return offsetY;
 }
 
@@ -122,8 +122,8 @@ void Level::update(float deltaTime, const b2Vec2& characterPosition) {
     float levelWidth = tileWidth * tiles.size() / PIXELS_PER_METER;
     float levelHeight = tileHeight * tiles.size() / PIXELS_PER_METER;
 
-    offsetX = std::clamp(offsetX, windowWidth / (2.0f * PIXELS_PER_METER), levelWidth - windowWidth / (2.0f * PIXELS_PER_METER));
-    offsetY = std::clamp(offsetY, windowHeight / (2.0f * PIXELS_PER_METER), levelHeight - windowHeight / (2.0f * PIXELS_PER_METER));
+    offsetX = std::clamp(offsetX, windowWidth / (2.0F * PIXELS_PER_METER), levelWidth - (windowWidth / (2.0F * PIXELS_PER_METER)));
+    offsetY = std::clamp(offsetY, windowHeight / (2.0F * PIXELS_PER_METER), levelHeight - (windowHeight / (2.0F * PIXELS_PER_METER)));
 
     spdlog::debug("Level updated: deltaTime = {}, characterPosition = ({}, {})", deltaTime, characterPosition.x, characterPosition.y);
 }

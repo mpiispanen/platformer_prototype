@@ -84,6 +84,7 @@ if(ENABLE_CLANG_TIDY)
       -I${CMAKE_SOURCE_DIR}/external/nlohmann/include
       -I${CMAKE_SOURCE_DIR}/external/sdl/include
       -I${CMAKE_SOURCE_DIR}/external/sdl_image/include
+      -I${CMAKE_SOURCE_DIR}/external/spdlog/include
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Running clang-tidy on source files"
   )
@@ -104,6 +105,7 @@ if(ENABLE_CLANG_TIDY)
       -I${CMAKE_SOURCE_DIR}/external/nlohmann/include
       -I${CMAKE_SOURCE_DIR}/external/sdl/include
       -I${CMAKE_SOURCE_DIR}/external/sdl_image/include
+      -I${CMAKE_SOURCE_DIR}/external/spdlog/include
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Applying Clang-Tidy fixes"
   )

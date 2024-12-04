@@ -11,8 +11,8 @@ public:
 
     void addFrame(SDL_Texture* texture, int duration);
     void update(float deltaTime);
-    SDL_Texture* getCurrentFrame() const;
-    SDL_FlipMode getFlip() const;
+    [[nodiscard]] auto getCurrentFrame() const -> SDL_Texture*;
+    [[nodiscard]] auto getFlip() const -> SDL_FlipMode;
     void setFlip(SDL_FlipMode flip);
 
 private:
