@@ -5,12 +5,14 @@
 #include <iostream>
 #include <fstream>
 #include <nlohmann/json.hpp>
+#include <spdlog/spdlog.h>
 
 Level::Level(SDL_Renderer* renderer, b2WorldId worldId, std::string& assetDir, int windowWidth, int windowHeight, int tilesVertically)
     : renderer(renderer), worldId(worldId), assetDir(assetDir), windowWidth(windowWidth), windowHeight(windowHeight), tilesVertically(tilesVertically) {
     scale = 1.5f;
     offsetX = windowWidth / PIXELS_PER_METER / 2.0f;
     offsetY = windowHeight / PIXELS_PER_METER/ 2.0f;
+    spdlog::debug("Level initialized with scale: {}, offsetX: {}, offsetY: {}", scale, offsetX, offsetY);
 }
 
 Level::~Level() = default;
@@ -18,7 +20,7 @@ Level::~Level() = default;
 auto Level::loadTilemap(const std::string& filename) -> bool {
     std::ifstream file(filename);
     if (!file.is_open()) {
-        std::cerr << "Failed to open tilemap file: " << filename << std::endl;
+        spdlog::error("Failed to open tilemap file: {}", filename);
         return false;
     }
     nlohmann::json tilemap;
@@ -48,6 +50,7 @@ auto Level::loadTilemap(const std::string& filename) -> bool {
         }
     }
 
+    spdlog::info("Tilemap loaded successfully from file: {}", filename);
     return true;
 }
 
@@ -63,11 +66,13 @@ void Level::handleErrors() {
 
 void Level::setScale(float newScale) {
     scale = newScale;
+    spdlog::debug("Scale set to: {}", scale);
 }
 
 void Level::setViewportCenter(float centerX, float centerY) {
     offsetX = centerX;
     offsetY = centerY;
+    spdlog::debug("Viewport center set to: ({}, {})", centerX, centerY);
 }
 
 float Level::getScale() const {
@@ -104,6 +109,8 @@ void Level::createTile(const std::string& type, int x, int y, bool isDynamic) {
     // Create and store tiles as shared pointers
     std::shared_ptr<Tile> tile = std::make_shared<Tile>(renderer, type, bodyId, shapeId, tileWidth, tileHeight, assetDir);
     tiles.push_back(tile);
+
+    spdlog::debug("Tile created: type = {}, position = ({}, {}), isDynamic = {}", type, x, y, isDynamic);
 }
 
 void Level::update(float deltaTime, const b2Vec2& characterPosition) {
@@ -117,4 +124,6 @@ void Level::update(float deltaTime, const b2Vec2& characterPosition) {
 
     offsetX = std::clamp(offsetX, windowWidth / (2.0f * PIXELS_PER_METER), levelWidth - windowWidth / (2.0f * PIXELS_PER_METER));
     offsetY = std::clamp(offsetY, windowHeight / (2.0f * PIXELS_PER_METER), levelHeight - windowHeight / (2.0f * PIXELS_PER_METER));
+
+    spdlog::debug("Level updated: deltaTime = {}, characterPosition = ({}, {})", deltaTime, characterPosition.x, characterPosition.y);
 }

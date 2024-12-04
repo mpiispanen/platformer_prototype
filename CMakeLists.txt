@@ -40,8 +40,12 @@ target_include_directories(platformer_prototype PRIVATE external/sdl/include)
 add_subdirectory(external/sdl_image)
 target_include_directories(platformer_prototype PRIVATE external/sdl_image/include)
 
+## spdlog
+add_subdirectory(external/spdlog)
+target_include_directories(platformer_prototype PRIVATE external/spdlog/include)
+
 # Link SDL3, Box2D, and nlohmann_json libraries
-target_link_libraries(platformer_prototype PRIVATE SDL3::SDL3 SDL3_image::SDL3_image box2d nlohmann_json::nlohmann_json)
+target_link_libraries(platformer_prototype PRIVATE SDL3::SDL3 SDL3_image::SDL3_image box2d nlohmann_json::nlohmann_json spdlog::spdlog)
 
 # Include build type options for debug and release builds
 set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build (Debug or Release)" FORCE)
