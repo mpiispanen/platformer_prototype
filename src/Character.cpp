@@ -4,12 +4,15 @@
 #include <nlohmann/json.hpp>
 #include <iostream>
 #include <fstream>
+#include <spdlog/spdlog.h>
 
 // Scale factor for character size (4x)
 constexpr float TILE_SIZE = 32.0F;
 
 Character::Character(SDL_Renderer* renderer, b2WorldId worldId, float x, float y, uint32_t windowWidth, uint32_t windowHeight, const nlohmann::json& characterConfig)
     : renderer(renderer), worldId(worldId), x(x), y(y), windowWidth(windowWidth), windowHeight(windowHeight), maxWalkingSpeed(5.0f), isMoving(false) {
+    spdlog::debug("Initializing character at position ({}, {})", x, y);
+
     // Store the provided configuration data
     for (const auto& animation : characterConfig["animations"]) {
         std::string name = animation["name"];
@@ -25,6 +28,7 @@ Character::Character(SDL_Renderer* renderer, b2WorldId worldId, float x, float y
 }
 
 Character::~Character() {
+    spdlog::debug("Destroying character");
     b2DestroyBody(bodyId);
 }
 
@@ -139,7 +143,7 @@ void Character::loadIdleAnimation() {
     auto& config = animationConfigs["idle"];
     SDL_Surface* surface = IMG_Load(config["filePath"].get<std::string>().c_str());
     if (surface == nullptr) {
-        std::cerr << "Failed to load idle animation: " << SDL_GetError() << std::endl;
+        spdlog::error("Failed to load idle animation: {}", SDL_GetError());
         return;
     }
 
@@ -175,7 +179,7 @@ void Character::loadWalkingAnimation() {
     auto& config = animationConfigs["walking"];
     SDL_Surface* surface = IMG_Load(config["filePath"].get<std::string>().c_str());
     if (surface == nullptr) {
-        std::cerr << "Failed to load walking animation: " << SDL_GetError() << std::endl;
+        spdlog::error("Failed to load walking animation: {}", SDL_GetError());
         return;
     }
 

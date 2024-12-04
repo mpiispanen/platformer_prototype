@@ -7,6 +7,11 @@
 #include <nlohmann/json.hpp>
 #include "Level.h"
 #include "Character.h"
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/sinks/rotating_file_sink.h>
+#include "Logging.h"
+#include "Config.h"
 
 // Named constants
 constexpr int WINDOW_WIDTH = 800;
@@ -18,6 +23,10 @@ constexpr int COLOR_ALPHA = 255;
 constexpr float FRAMES_PER_SECOND = 60.0F;
 
 auto main(int argc, char *argv[]) -> int {
+    // Initialize spdlog rotating logger
+    initializeLogging();
+    spdlog::info("Starting {} application", PROJECT_NAME);
+
     // Default window size
     int windowWidth = WINDOW_WIDTH;
     int windowHeight = WINDOW_HEIGHT;
@@ -43,14 +52,14 @@ auto main(int argc, char *argv[]) -> int {
         }
     }
     catch (const cxxopts::exceptions::exception &e) {
-        std::cerr << "Error parsing options: " << e.what() << std::endl;
+        spdlog::error("Error parsing options: {}", e.what());
         return 1;
     }
 
     // Load configuration file
     std::ifstream configFile("config.json");
     if (!configFile.is_open()) {
-        std::cerr << "Failed to open config.json" << std::endl;
+        spdlog::error("Failed to open config.json");
         return 1;
     }
     nlohmann::json config;
@@ -63,7 +72,7 @@ auto main(int argc, char *argv[]) -> int {
     // Load character configuration file
     std::ifstream characterConfigFile("character_config.json");
     if (!characterConfigFile.is_open()) {
-        std::cerr << "Failed to open character_config.json" << std::endl;
+        spdlog::error("Failed to open character_config.json");
         return 1;
     }
     nlohmann::json characterConfig;
@@ -72,7 +81,7 @@ auto main(int argc, char *argv[]) -> int {
 
     // Initialize SDL with video subsystem
     if (!SDL_Init(SDL_INIT_VIDEO)) {
-        std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
+        spdlog::error("SDL_Init Error: {}", SDL_GetError());
         return 1;
     }
 
@@ -87,7 +96,7 @@ auto main(int argc, char *argv[]) -> int {
                                           windowHeight,
                                           windowFlags);
     if (window == nullptr) {
-        std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
+        spdlog::error("SDL_CreateWindow Error: {}", SDL_GetError());
         SDL_Quit();
         return 1;
     }
@@ -95,7 +104,7 @@ auto main(int argc, char *argv[]) -> int {
     // Create SDL_Renderer with SDL_RENDERER_ACCELERATED and SDL_RENDERER_PRESENTVSYNC flags
     SDL_Renderer *renderer = SDL_CreateRenderer(window, nullptr);
     if (renderer == nullptr) {
-        std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
+        spdlog::error("SDL_CreateRenderer Error: {}", SDL_GetError());
         SDL_DestroyWindow(window);
         SDL_Quit();
         return 1;
@@ -113,7 +122,7 @@ auto main(int argc, char *argv[]) -> int {
     // Load tilemap
     std::string levelPath = assetDir + "/levels/" + levelName + ".tmj";
     if (!level.loadTilemap(levelPath)) {
-        std::cerr << "Failed to load tilemap: " << levelPath << std::endl;
+        spdlog::error("Failed to load tilemap: {}", levelPath);
         level.handleErrors();
         SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(window);
@@ -129,6 +138,7 @@ auto main(int argc, char *argv[]) -> int {
     float timeStep = 1.0F / FRAMES_PER_SECOND;
     int subStepCount = 4;
     bool running = true;
+    spdlog::info("Starting main game loop");
     while (running) {
         // Handle events
         SDL_Event event;
@@ -158,11 +168,13 @@ auto main(int argc, char *argv[]) -> int {
 
         SDL_RenderPresent(renderer);
     }
+    spdlog::info("Exiting main game loop");
 
     // Cleanup
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
+    spdlog::info("Cleaned up resources and quit SDL");
 
     return 0;
 }
