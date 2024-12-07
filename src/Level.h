@@ -1,5 +1,4 @@
-#ifndef LEVEL_H
-#define LEVEL_H
+#pragma once
 
 #include <SDL3/SDL.h>
 #include <box2d/box2d.h>
@@ -45,5 +44,3 @@ private:
     
     std::vector<std::shared_ptr<Tile>> tiles;
 };
-
-#endif // LEVEL_H

@@ -134,7 +134,7 @@ void Character::createBody() {
     b2Polygon box = b2MakeBox(halfWidth, halfHeight);
 
     b2ShapeDef shapeDef = b2DefaultShapeDef();
-    shapeDef.density = 5.0F;
+    shapeDef.density = 25.0F;
     shapeDef.friction = 1.0F;
     b2CreatePolygonShape(bodyId, &shapeDef, &box);
 }

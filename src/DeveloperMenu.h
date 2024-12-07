@@ -1,11 +1,12 @@
-#ifndef DEVELOPER_MENU_H
-#define DEVELOPER_MENU_H
-
+#pragma once
 #include <imgui.h>
 #include <nlohmann/json.hpp>
+#include <vector>
+#include <string>
 #include <SDL3/SDL.h>
 #include "imgui_impl_sdl3.h"
 #include "imgui_impl_sdlrenderer3.h"
+#include "Observer.h"
 
 class DeveloperMenu {
 public:
@@ -13,17 +14,25 @@ public:
     ~DeveloperMenu();
 
     void init(SDL_Window* window, SDL_Renderer* renderer);
+    void handleDPIScaling(SDL_Window* window);
     void render();
     void handleInput();
-    void toggleVisibility();
     void loadSettings();
     void saveSettings();
-    void handleDPIScaling(SDL_Window* window);
+    void toggleVisibility();
+    void addObserver(Observer* observer);
 
 private:
-    bool isVisible = false;
+    void notifyObservers(const std::string& settingName, float newValue);
+
+    bool isVisible;
     float gravity;
+    float characterSpeed;
+
+    // Previous values to track changes
+    float prevGravity;
+    float prevCharacterSpeed;
+
+    std::vector<Observer*> observers;
     nlohmann::json settings;
 };
-
-#endif // DEVELOPER_MENU_H

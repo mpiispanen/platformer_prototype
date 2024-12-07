@@ -16,6 +16,7 @@ endif()
 # Define source files
 file(GLOB_RECURSE SOURCE_FILES src/*.cpp src/*.h)
 
+
 # Add executable target
 add_executable(platformer_prototype ${SOURCE_FILES})
 

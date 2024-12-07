@@ -1,5 +1,4 @@
-#ifndef TILE_H
-#define TILE_H
+#pragma once
 
 #include <SDL3/SDL.h>
 #include <box2d/box2d.h>
@@ -35,5 +34,3 @@ private:
     SDL_Texture* texture;
     Animation animation;
 };
-
-#endif // TILE_H

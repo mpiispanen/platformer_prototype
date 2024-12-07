@@ -13,6 +13,7 @@
 #include "Logging.h"
 #include "Config.h"
 #include "DeveloperMenu.h"
+#include "GameSettingsObserver.h"
 #include "imgui.h"
 #include "imgui_impl_sdl3.h"
 #include "imgui_impl_sdlrenderer3.h"
@@ -149,6 +150,10 @@ auto main(int argc, char *argv[]) -> int {
     // Initialize DeveloperMenu
     DeveloperMenu developerMenu;
     developerMenu.init(window, renderer);
+
+    // Create and register GameSettingsObserver
+    GameSettingsObserver gameSettingsObserver(worldId, character);
+    developerMenu.addObserver(&gameSettingsObserver);
 
     // Main game loop
     float timeStep = 1.0F / FRAMES_PER_SECOND;

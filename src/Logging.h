@@ -1,5 +1,4 @@
-#ifndef LOGGING_H
-#define LOGGING_H
+#pragma once
 
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
@@ -26,5 +25,3 @@ inline void initializeLogging() {
     spdlog::set_level(spdlog::level::debug); // Set global log level to debug
     spdlog::flush_on(spdlog::level::debug);  // Flush logs on debug level
 }
-
-#endif // LOGGING_H

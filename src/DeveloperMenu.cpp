@@ -4,8 +4,11 @@
 #include <iostream>
 #include "Logging.h"
 
-DeveloperMenu::DeveloperMenu() : isVisible(false), gravity(9.8f) {
+DeveloperMenu::DeveloperMenu() : isVisible(false), gravity(9.8f), characterSpeed(5.0f), prevGravity(9.8f), prevCharacterSpeed(5.0f) {
     loadSettings();
+    // Notify observers of the initial settings
+    notifyObservers("gravity", gravity);
+    notifyObservers("characterSpeed", characterSpeed);
 }
 
 DeveloperMenu::~DeveloperMenu() {
@@ -47,7 +50,13 @@ void DeveloperMenu::render() {
 
     ImGui::Begin("Developer Menu");
     ImGui::Text("Gravity: %.2f", gravity);
-    ImGui::SliderFloat("Gravity", &gravity, 0.0f, 20.0f);
+    if (ImGui::SliderFloat("Gravity", &gravity, 0.0f, -30.0f)) {
+        notifyObservers("gravity", gravity);
+    }
+    ImGui::Text("Character Speed: %.2f", characterSpeed);
+    if (ImGui::SliderFloat("Character Speed", &characterSpeed, 0.0f, 20.0f)) {
+        notifyObservers("characterSpeed", characterSpeed);
+    }
     ImGui::End();
 }
 
@@ -61,6 +70,9 @@ void DeveloperMenu::loadSettings() {
         settingsFile >> settings;
         settingsFile.close();
         gravity = settings.value("gravity", 9.8f);
+        characterSpeed = settings.value("characterSpeed", 5.0f);
+        prevGravity = gravity;
+        prevCharacterSpeed = characterSpeed;
     } else {
         spdlog::warn("Failed to open developer_menu_settings.json. Using default settings.");
     }
@@ -68,6 +80,7 @@ void DeveloperMenu::loadSettings() {
 
 void DeveloperMenu::saveSettings() {
     settings["gravity"] = gravity;
+    settings["characterSpeed"] = characterSpeed;
     std::ofstream settingsFile("developer_menu_settings.json");
     if (settingsFile.is_open()) {
         settingsFile << settings.dump(4);
@@ -79,4 +92,14 @@ void DeveloperMenu::saveSettings() {
 
 void DeveloperMenu::toggleVisibility() {
     isVisible = !isVisible;
+}
+
+void DeveloperMenu::addObserver(Observer* observer) {
+    observers.push_back(observer);
+}
+
+void DeveloperMenu::notifyObservers(const std::string& settingName, float newValue) {
+    for (Observer* observer : observers) {
+        observer->onSettingChanged(settingName, newValue);
+    }
 }
