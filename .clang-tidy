@@ -2,3 +2,5 @@ Checks: '-*,modernize-*,readability-*,-readability-magic-numbers'
 HeaderFilterRegex: '^(?!.*external).*'
 FormatStyle: 'file'
 UseColor: true
+ExtraArgs: 
+  - "-Iexternal/imgui"

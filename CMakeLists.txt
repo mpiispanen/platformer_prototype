@@ -44,8 +44,31 @@ target_include_directories(platformer_prototype PRIVATE external/sdl_image/inclu
 add_subdirectory(external/spdlog)
 target_include_directories(platformer_prototype PRIVATE external/spdlog/include)
 
+## Dear ImGui
+# Add the include directories for imgui and its backends
+set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/external/imgui)
+include_directories(${IMGUI_DIR} ${IMGUI_DIR}/backends)
+
+# Add the imgui source files
+file(GLOB IMGUI_SOURCES
+  ${IMGUI_DIR}/imgui.cpp
+  ${IMGUI_DIR}/imgui_draw.cpp
+  ${IMGUI_DIR}/imgui_tables.cpp
+  ${IMGUI_DIR}/imgui_widgets.cpp
+  ${IMGUI_DIR}/backends/imgui_impl_sdl3.cpp
+  ${IMGUI_DIR}/backends/imgui_impl_sdlrenderer3.cpp
+)
+
+add_library(imgui STATIC ${IMGUI_SOURCES})
+
+# Ensure SDL3 include directories are specified for imgui backends
+target_include_directories(imgui PRIVATE external/sdl/include)
+
+# Link the imgui library to the executable
+target_link_libraries(platformer_prototype PRIVATE imgui)
+
 # Link SDL3, Box2D, and nlohmann_json libraries
-target_link_libraries(platformer_prototype PRIVATE SDL3::SDL3 SDL3_image::SDL3_image box2d nlohmann_json::nlohmann_json spdlog::spdlog)
+target_link_libraries(platformer_prototype PRIVATE SDL3::SDL3 SDL3_image::SDL3_image box2d nlohmann_json::nlohmann_json spdlog::spdlog imgui)
 
 # Include build type options for debug and release builds
 set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build (Debug or Release)" FORCE)
@@ -85,6 +108,8 @@ if(ENABLE_CLANG_TIDY)
       -I${CMAKE_SOURCE_DIR}/external/sdl/include
       -I${CMAKE_SOURCE_DIR}/external/sdl_image/include
       -I${CMAKE_SOURCE_DIR}/external/spdlog/include
+      -I${CMAKE_SOURCE_DIR}/external/imgui
+      -I${CMAKE_SOURCE_DIR}/external/imgui/backends
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Running clang-tidy on source files"
   )
@@ -106,6 +131,8 @@ if(ENABLE_CLANG_TIDY)
       -I${CMAKE_SOURCE_DIR}/external/sdl/include
       -I${CMAKE_SOURCE_DIR}/external/sdl_image/include
       -I${CMAKE_SOURCE_DIR}/external/spdlog/include
+      -I${CMAKE_SOURCE_DIR}/external/imgui
+      -I${CMAKE_SOURCE_DIR}/external/imgui/backends
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Applying Clang-Tidy fixes"
   )

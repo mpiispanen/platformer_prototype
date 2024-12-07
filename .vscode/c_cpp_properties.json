@@ -9,7 +9,8 @@
                 "external/sdl_image/include",
                 "external/box2d/include",
                 "external/cxxopts/include",
-                "external/nlohmann/include"
+                "external/nlohmann/include",
+                "external/imgui"
             ],
             "defines": [],
             "macFrameworkPath": [

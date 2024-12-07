@@ -2,6 +2,7 @@
 #include "Utils.h"
 #include <SDL3_image/SDL_image.h>
 #include <iostream>
+#include <spdlog/spdlog.h>
 
 Tile::Tile(SDL_Renderer* renderer, const std::string& type, b2BodyId bodyId, b2ShapeId shapeId, uint32_t width, uint32_t height, const std::string& assetDir)
     : renderer(renderer), bodyId(bodyId), shapeId(shapeId), width(width), height(height), type(type) {
@@ -44,6 +45,9 @@ void Tile::render(float scale, float offsetX, float offsetY, uint32_t windowWidt
     dstRect.y = static_cast<int>(screenPos.y - (height * scale / 2));
     dstRect.w = static_cast<int>(width * scale);
     dstRect.h = static_cast<int>(height * scale);
+
+    //spdlog::info("Drawing tile of type {} at logical position ({}, {}) and screen position ({}, {})", 
+    //             type, position.x, position.y, screenPos.x, screenPos.y);
 
     SDL_RenderTexture(renderer, texture, nullptr, &dstRect);
 }
