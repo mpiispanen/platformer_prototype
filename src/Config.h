@@ -1,6 +1,3 @@
-#ifndef CONFIG_H
-#define CONFIG_H
+#pragma once
 
 constexpr const char* PROJECT_NAME = "platformer_prototype";
-
-#endif // CONFIG_H

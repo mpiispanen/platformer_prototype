@@ -1,5 +1,4 @@
-#ifndef CHARACTER_H
-#define CHARACTER_H
+#pragma once
 
 #include <SDL3/SDL.h>
 #include <box2d/box2d.h>
@@ -49,5 +48,3 @@ private:
     void loadWalkingAnimation();
     void flipAnimation(bool faceRight);
 };
-
-#endif // CHARACTER_H

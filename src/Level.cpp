@@ -9,9 +9,10 @@
 
 Level::Level(SDL_Renderer* renderer, b2WorldId worldId, std::string& assetDir, int windowWidth, int windowHeight, int tilesVertically)
     : renderer(renderer), worldId(worldId), assetDir(assetDir), windowWidth(windowWidth), windowHeight(windowHeight), tilesVertically(tilesVertically) {
-    scale = 1.5F;
+    scale = 1.0F;
     offsetX = windowWidth / PIXELS_PER_METER / 2.0F;
-    offsetY = windowHeight / PIXELS_PER_METER/ 2.0F;
+    offsetY = windowHeight / PIXELS_PER_METER / 2.0F;
+
     spdlog::debug("Level initialized with scale: {}, offsetX: {}, offsetY: {}", scale, offsetX, offsetY);
 }
 
@@ -40,10 +41,10 @@ auto Level::loadTilemap(const std::string& filename) -> bool {
                 for (int x = 0; x < width; ++x) {
                     int tileId = data[(y * width) + x];
                     if (tileId == 1) {
-                        createTile("ground", x * tileWidth, (height - y) * tileHeight, false);
+                        createTile("ground", x * tileWidth, (height - y - 1) * tileHeight, false);
                     }
                     else if (tileId == 2) {
-                        createTile("rectangle", x * tileWidth, (height - y) * tileHeight, false);
+                        createTile("rectangle", x * tileWidth, (height - y - 1) * tileHeight, false);
                     }
                 }
             }
@@ -110,7 +111,7 @@ void Level::createTile(const std::string& type, int x, int y, bool isDynamic) {
     std::shared_ptr<Tile> tile = std::make_shared<Tile>(renderer, type, bodyId, shapeId, tileWidth, tileHeight, assetDir);
     tiles.push_back(tile);
 
-    spdlog::debug("Tile created: type = {}, position = ({}, {}), isDynamic = {}", type, x, y, isDynamic);
+    spdlog::debug("Tile created: type = {}, position = ({}, {}), isDynamic = {}", type, bodyDef.position.x, bodyDef.position.y, isDynamic);
 }
 
 void Level::update(float deltaTime, const b2Vec2& characterPosition) {

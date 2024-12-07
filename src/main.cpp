@@ -12,6 +12,11 @@
 #include <spdlog/sinks/rotating_file_sink.h>
 #include "Logging.h"
 #include "Config.h"
+#include "DeveloperMenu.h"
+#include "GameSettingsObserver.h"
+#include "imgui.h"
+#include "imgui_impl_sdl3.h"
+#include "imgui_impl_sdlrenderer3.h"
 
 // Named constants
 constexpr int WINDOW_WIDTH = 800;
@@ -31,6 +36,7 @@ auto main(int argc, char *argv[]) -> int {
     int windowWidth = WINDOW_WIDTH;
     int windowHeight = WINDOW_HEIGHT;
     bool fullscreen = DEFAULT_FULLSCREEN;
+    bool developerMode = false;
     std::string assetDir = "assets"; // Default asset directory
     std::string levelName = "test_level"; // Default level name
 
@@ -42,6 +48,7 @@ auto main(int argc, char *argv[]) -> int {
             ("f,fullscreen", "Fullscreen mode", cxxopts::value<bool>(fullscreen)->default_value("false"))
             ("a,assetDir", "Asset directory", cxxopts::value<std::string>(assetDir)->default_value("assets"))
             ("l,levelName", "Level name", cxxopts::value<std::string>(levelName)->default_value("test_level"))
+            ("d,developerMode", "Developer mode", cxxopts::value<bool>(developerMode)->default_value("false"))
             ("help", "Print help");
 
         auto result = options.parse(argc, argv);
@@ -80,7 +87,7 @@ auto main(int argc, char *argv[]) -> int {
     characterConfigFile.close();
 
     // Initialize SDL with video subsystem
-    if (!SDL_Init(SDL_INIT_VIDEO)) {
+    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD)) {
         spdlog::error("SDL_Init Error: {}", SDL_GetError());
         return 1;
     }
@@ -103,16 +110,22 @@ auto main(int argc, char *argv[]) -> int {
 
     // Create SDL_Renderer with SDL_RENDERER_ACCELERATED and SDL_RENDERER_PRESENTVSYNC flags
     SDL_Renderer *renderer = SDL_CreateRenderer(window, nullptr);
+    SDL_SetRenderVSync(renderer, 1);
     if (renderer == nullptr) {
         spdlog::error("SDL_CreateRenderer Error: {}", SDL_GetError());
         SDL_DestroyWindow(window);
         SDL_Quit();
         return 1;
     }
+    SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+    SDL_ShowWindow(window);
+
+    // Get the display scale factor
+    float displayScale = SDL_GetWindowDisplayScale(window);
 
     // Initialize Box2D World
     b2WorldDef worldDef = b2DefaultWorldDef();
-    worldDef.gravity = b2Vec2{GRAVITY_X, GRAVITY_Y}; // Updated to C++-style initialization
+    worldDef.gravity = b2Vec2{GRAVITY_X, GRAVITY_Y};
     b2WorldId worldId = b2CreateWorld(&worldDef);
 
     // Create Level object
@@ -134,6 +147,14 @@ auto main(int argc, char *argv[]) -> int {
     Character character(renderer, worldId, 15.0F, 20.0F, windowWidth, windowHeight, characterConfig);
     character.setMaxWalkingSpeed(maxWalkingSpeed);
 
+    // Initialize DeveloperMenu
+    DeveloperMenu developerMenu;
+    developerMenu.init(window, renderer);
+
+    // Create and register GameSettingsObserver
+    GameSettingsObserver gameSettingsObserver(worldId, character);
+    developerMenu.addObserver(&gameSettingsObserver);
+
     // Main game loop
     float timeStep = 1.0F / FRAMES_PER_SECOND;
     int subStepCount = 4;
@@ -143,11 +164,20 @@ auto main(int argc, char *argv[]) -> int {
         // Handle events
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
+            ImGui_ImplSDL3_ProcessEvent(&event);
             if (event.type == SDL_EVENT_QUIT) {
                 running = false;
             }
             // Handle other events (keyboard, mouse, etc.)
             character.handleInput(event);
+            developerMenu.handleInput();
+
+            if (event.type == SDL_EVENT_KEY_DOWN && event.key.key == SDLK_F1) {
+                developerMenu.toggleVisibility();
+            }
+            else if (event.type == SDL_EVENT_KEY_DOWN && event.key.key == SDLK_ESCAPE) {
+                running = false;
+            }
         }
 
         // Update physics
@@ -155,6 +185,11 @@ auto main(int argc, char *argv[]) -> int {
 
         // Update character
         character.update(timeStep);
+
+        // Start the ImGui frame
+        ImGui_ImplSDLRenderer3_NewFrame();
+        ImGui_ImplSDL3_NewFrame();
+        ImGui::NewFrame();
 
         // Game logic and rendering
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, COLOR_ALPHA); // Clear with black color
@@ -166,9 +201,28 @@ auto main(int argc, char *argv[]) -> int {
         // Render character
         character.render(level.getScale(), level.getOffsetX(), level.getOffsetY(), windowWidth, windowHeight);
 
+        // Reset SDL renderer transformations before rendering ImGui
+        SDL_SetRenderScale(renderer, displayScale, displayScale);
+        SDL_SetRenderViewport(renderer, nullptr);
+
+        // Render developer menu if in developer mode
+        if (developerMode) {
+            developerMenu.render();
+        }
+
+        // Render ImGui
+        ImGui::Render();
+        ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
+
+        // Reset SDL renderer scale to 1.0 for next frame
+        SDL_SetRenderScale(renderer, 1.0f, 1.0f);
+
         SDL_RenderPresent(renderer);
     }
     spdlog::info("Exiting main game loop");
+
+    // Save developer menu settings
+    developerMenu.saveSettings();
 
     // Cleanup
     SDL_DestroyRenderer(renderer);

@@ -1,5 +1,4 @@
-#ifndef ANIMATION_H
-#define ANIMATION_H
+#pragma once
 
 #include <SDL3/SDL.h>
 #include <vector>
@@ -26,5 +25,3 @@ private:
     float currentTime;
     SDL_FlipMode flip;
 };
-
-#endif // ANIMATION_H

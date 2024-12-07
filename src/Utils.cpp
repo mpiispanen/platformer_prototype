@@ -1,12 +1,13 @@
 #include "Utils.h"
+#include <SDL3/SDL.h>
+#include <box2d/box2d.h>
 
 // Convert Box2D world coordinates to SDL rendering coordinates
 auto Box2DToSDL(const b2Vec2& worldPos, float scale, float offsetX, float offsetY, uint32_t windowWidth, uint32_t windowHeight) -> SDL_FPoint {
     float total_scale = PIXELS_PER_METER * scale;
-    constexpr float halfMeter = 0.5F;
     SDL_FPoint screenPos;
-    screenPos.x = (worldPos.x - offsetX + (windowWidth / total_scale / 2) - halfMeter) * total_scale;
-    screenPos.y = windowHeight - ((worldPos.y - offsetY - (windowHeight / total_scale / 2) - halfMeter) * total_scale);
+    screenPos.x = ((worldPos.x - offsetX) * total_scale) + (windowWidth / 2.0f);
+    screenPos.y = windowHeight - ((worldPos.y - offsetY - (windowHeight / total_scale / 2)) * total_scale);
     return screenPos;
 }
 
@@ -14,9 +15,7 @@ auto Box2DToSDL(const b2Vec2& worldPos, float scale, float offsetX, float offset
 auto SDLToBox2D(const SDL_FPoint& screenPos, float scale, float offsetX, float offsetY, uint32_t windowWidth, uint32_t windowHeight) -> b2Vec2 {
     float total_scale = PIXELS_PER_METER * scale;
     b2Vec2 worldPos;
-
-    constexpr float halfMeter = 0.5F;
-    worldPos.x = (screenPos.x / total_scale) + offsetX - (windowWidth / total_scale / 2) + halfMeter;
-    worldPos.y = ((windowHeight - screenPos.y) / total_scale) + offsetY - (windowHeight / total_scale / 2) + halfMeter;
+    worldPos.x = (screenPos.x - (windowWidth / 2.0f)) / total_scale + offsetX;
+    worldPos.y = ((windowHeight - screenPos.y) / total_scale) + offsetY + (windowHeight / total_scale / 2);
     return worldPos;
 }

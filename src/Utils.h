@@ -1,5 +1,4 @@
-#ifndef UTILS_H
-#define UTILS_H
+#pragma once
 
 #include <SDL3/SDL.h>
 #include <box2d/box2d.h>
@@ -12,5 +11,3 @@ auto Box2DToSDL(const b2Vec2& position, float extraScale, float offsetX, float o
 
 // Convert SDL screen coordinates to Box2D world coordinates
 auto SDLToBox2D(const SDL_FPoint& screenPos, float extraScale, float offsetX, float offsetY, uint32_t windowWidth, uint32_t windowHeight) -> b2Vec2;
-
-#endif // UTILS_H

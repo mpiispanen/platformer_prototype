@@ -134,9 +134,12 @@ void Character::createBody() {
     b2Polygon box = b2MakeBox(halfWidth, halfHeight);
 
     b2ShapeDef shapeDef = b2DefaultShapeDef();
-    shapeDef.density = 5.0F;
-    shapeDef.friction = 1.0F;
+    shapeDef.density = 1.0F; // Set realistic density
+    shapeDef.friction = 0.3F; // Set realistic friction
     b2CreatePolygonShape(bodyId, &shapeDef, &box);
+
+    // Ensure gravity scale is set to 1.0
+    b2Body_SetGravityScale(bodyId, 1.0F);
 }
 
 void Character::loadIdleAnimation() {
