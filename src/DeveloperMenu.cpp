@@ -6,9 +6,6 @@
 
 DeveloperMenu::DeveloperMenu() : isVisible(false), gravity(9.8f), characterSpeed(5.0f), prevGravity(9.8f), prevCharacterSpeed(5.0f) {
     loadSettings();
-    // Notify observers of the initial settings
-    notifyObservers("gravity", gravity);
-    notifyObservers("characterSpeed", characterSpeed);
 }
 
 DeveloperMenu::~DeveloperMenu() {
@@ -103,3 +100,9 @@ void DeveloperMenu::notifyObservers(const std::string& settingName, float newVal
         observer->onSettingChanged(settingName, newValue);
     }
 }
+
+void DeveloperMenu::notifyAllObservers() {
+    notifyObservers("gravity", gravity);
+    notifyObservers("characterSpeed", characterSpeed);
+}
+

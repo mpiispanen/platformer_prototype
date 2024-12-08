@@ -21,10 +21,10 @@ public:
     void saveSettings();
     void toggleVisibility();
     void addObserver(Observer* observer);
+    void notifyObservers(const std::string& settingName, float newValue);
+    void notifyAllObservers();
 
 private:
-    void notifyObservers(const std::string& settingName, float newValue);
-
     bool isVisible;
     float gravity;
     float characterSpeed;

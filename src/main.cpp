@@ -23,12 +23,12 @@ constexpr int WINDOW_WIDTH = 800;
 constexpr int WINDOW_HEIGHT = 600;
 constexpr bool DEFAULT_FULLSCREEN = false;
 constexpr float GRAVITY_X = 0.0F;
-constexpr float GRAVITY_Y = -10.0F;
+constexpr float GRAVITY_Y = -9.8F; // Earth's gravity
 constexpr int COLOR_ALPHA = 255;
 constexpr float FRAMES_PER_SECOND = 60.0F;
+constexpr float TIME_STEP = 1.0F / FRAMES_PER_SECOND;
 
 auto main(int argc, char *argv[]) -> int {
-    // Initialize spdlog rotating logger
     initializeLogging();
     spdlog::info("Starting {} application", PROJECT_NAME);
 
@@ -149,17 +149,20 @@ auto main(int argc, char *argv[]) -> int {
 
     // Initialize DeveloperMenu
     DeveloperMenu developerMenu;
-    developerMenu.init(window, renderer);
 
-    // Create and register GameSettingsObserver
-    GameSettingsObserver gameSettingsObserver(worldId, character);
-    developerMenu.addObserver(&gameSettingsObserver);
+    // Notify all observers of the initial settings if developer mode is enabled
+    if (developerMode) {
+        developerMenu.init(window, renderer);
 
-    // Main game loop
-    float timeStep = 1.0F / FRAMES_PER_SECOND;
-    int subStepCount = 4;
+        // Create and register GameSettingsObserver
+        GameSettingsObserver gameSettingsObserver(worldId, character);
+        developerMenu.addObserver(&gameSettingsObserver);
+
+        developerMenu.notifyAllObservers();
+    }
+
     bool running = true;
-    spdlog::info("Starting main game loop");
+    constexpr int subStepCount = 8;
     while (running) {
         // Handle events
         SDL_Event event;
@@ -170,21 +173,26 @@ auto main(int argc, char *argv[]) -> int {
             }
             // Handle other events (keyboard, mouse, etc.)
             character.handleInput(event);
-            developerMenu.handleInput();
+            
+            if(developerMode)
+            {
+                developerMenu.handleInput();
 
-            if (event.type == SDL_EVENT_KEY_DOWN && event.key.key == SDLK_F1) {
-                developerMenu.toggleVisibility();
+                if (event.type == SDL_EVENT_KEY_DOWN && event.key.key == SDLK_F1) {
+                    developerMenu.toggleVisibility();
+                }
             }
-            else if (event.type == SDL_EVENT_KEY_DOWN && event.key.key == SDLK_ESCAPE) {
+
+            if (event.type == SDL_EVENT_KEY_DOWN && event.key.key == SDLK_ESCAPE) {
                 running = false;
             }
         }
 
         // Update physics
-        b2World_Step(worldId, timeStep, subStepCount);
+        b2World_Step(worldId, TIME_STEP, subStepCount);
 
         // Update character
-        character.update(timeStep);
+        character.update(TIME_STEP);
 
         // Start the ImGui frame
         ImGui_ImplSDLRenderer3_NewFrame();
