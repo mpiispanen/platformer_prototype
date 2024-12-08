@@ -29,6 +29,9 @@
 .AppleDouble
 .LSOverride
 
+# Developer menu settings
+developer_menu_settings.json
+
 # Other files to ignore
 *.swp
 *~
