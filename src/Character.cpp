@@ -7,11 +7,16 @@
 #include <spdlog/spdlog.h>
 #include <imgui.h>
 
+// Define equality operator for b2ShapeId
+inline bool operator==(const b2ShapeId& lhs, const b2ShapeId& rhs) {
+    return lhs.index1 == rhs.index1;
+}
+
 // Scale factor for character size (4x)
 constexpr float TILE_SIZE = 32.0F;
 
 Character::Character(SDL_Renderer* renderer, b2WorldId worldId, float x, float y, uint32_t windowWidth, uint32_t windowHeight, const nlohmann::json& characterConfig)
-    : renderer(renderer), worldId(worldId), x(x), y(y), windowWidth(windowWidth), windowHeight(windowHeight), maxWalkingSpeed(5.0F), showDebug(false), isMoving(false) {
+    : renderer(renderer), worldId(worldId), x(x), y(y), windowWidth(windowWidth), windowHeight(windowHeight), maxWalkingSpeed(5.0F), showDebug(false), isMoving(false), isOnGround(false) {
     spdlog::debug("Initializing character at position ({}, {})", x, y);
 
     // Store the provided configuration data
@@ -71,11 +76,11 @@ void Character::update(float deltaTime) {
     b2Vec2 velocity = b2Body_GetLinearVelocity(bodyId);
 
     if (isMovingLeft) {
-        velocity.x = -maxWalkingSpeed;
+        velocity.x = isOnGround ? -maxWalkingSpeed : -maxWalkingSpeed * 0.5F;
         isFacingRight = false;
     }
     if (isMovingRight) {
-        velocity.x = maxWalkingSpeed;
+        velocity.x = isOnGround ? maxWalkingSpeed : maxWalkingSpeed * 0.5F;
         isFacingRight = true;
     }
     if (isMovingUp) {
@@ -145,6 +150,7 @@ void Character::createBody() {
     b2ShapeDef shapeDef = b2DefaultShapeDef();
     shapeDef.density = 1.0F; // Set realistic density
     shapeDef.friction = 0.3F; // Set realistic friction
+    shapeDef.enableContactEvents = true; // Enable contact events
     b2CreatePolygonShape(bodyId, &shapeDef, &box);
 
     // Ensure gravity scale is set to 1.0
@@ -228,10 +234,64 @@ void Character::showDebugWindow(bool show) {
 }
 
 void Character::updateDebugWindow() {
+    if (!showDebug) return;
+
     ImGui::Begin("Character Debug Info", &showDebug);
-    ImGui::Text("Position: (%.2f, %.2f)", x, y);
+    
+    // Position info
+    b2Vec2 position = b2Body_GetPosition(bodyId);
+    ImGui::Text("Position: (%.2f, %.2f)", position.x, position.y);
+    
+    // Velocity info
     b2Vec2 velocity = b2Body_GetLinearVelocity(bodyId);
     ImGui::Text("Velocity: (%.2f, %.2f)", velocity.x, velocity.y);
-    ImGui::Text("Speed: %.2f", b2Length(velocity));
+    float speed = b2Length(velocity);
+    ImGui::Text("Speed: %.2f", speed);
+    
+    // Ground contact status
+    ImGui::Text("On Ground: %s", isOnGround ? "Yes" : "No");
+    
     ImGui::End();
+}
+
+void Character::checkGroundContact() {
+    b2ContactEvents contactEvents = b2World_GetContactEvents(worldId);
+
+    // Check begin contact events
+    for (int i = 0; i < contactEvents.beginCount; ++i) {
+        b2ContactBeginTouchEvent beginEvent = contactEvents.beginEvents[i];
+        b2ShapeId shapeArray[1];
+        b2Body_GetShapes(bodyId, shapeArray, 1);
+        if (beginEvent.shapeIdA == shapeArray[0] || beginEvent.shapeIdB == shapeArray[0]) {
+            b2ContactData contactData[10];
+            int count = b2Body_GetContactData(bodyId, contactData, 10);
+            for (int j = 0; j < count; ++j) {
+                if (contactData[j].manifold.normal.y < 0) {
+                    isOnGround = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    // Check end contact events
+    for (int i = 0; i < contactEvents.endCount; ++i) {
+        b2ContactEndTouchEvent endEvent = contactEvents.endEvents[i];
+        b2ShapeId shapeArray[1];
+        b2Body_GetShapes(bodyId, shapeArray, 1);
+        if (endEvent.shapeIdA == shapeArray[0] || endEvent.shapeIdB == shapeArray[0]) {
+            b2ContactData contactData[10];
+            int count = b2Body_GetContactData(bodyId, contactData, 10);
+            bool groundContactFound = false;
+            for (int j = 0; j < count; ++j) {
+                if (contactData[j].manifold.normal.y < 0) {
+                    groundContactFound = true;
+                    break;
+                }
+            }
+            if (!groundContactFound) {
+                isOnGround = false;
+            }
+        }
+    }
 }

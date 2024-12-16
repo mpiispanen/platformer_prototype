@@ -18,6 +18,7 @@ public:
     void render(float scale, float offsetX, float offsetY, uint32_t windowWidth, uint32_t windowHeight);
     void setMaxWalkingSpeed(float speed);
     void showDebugWindow(bool show);
+    void checkGroundContact();
 
 private:
     SDL_Renderer* renderer;
@@ -34,6 +35,7 @@ private:
     int windowWidth;
     int windowHeight;
     bool showDebug;
+    bool isOnGround;
 
     bool isMoving {false};
     bool isMovingLeft {false};
