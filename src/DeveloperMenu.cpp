@@ -10,25 +10,11 @@ DeveloperMenu::DeveloperMenu() : isVisible(false), gravity(9.8f), characterSpeed
 
 DeveloperMenu::~DeveloperMenu() {
     saveSettings();
-    ImGui_ImplSDLRenderer3_Shutdown();
-    ImGui_ImplSDL3_Shutdown();
-    ImGui::DestroyContext();
 }
 
 void DeveloperMenu::init(SDL_Window* window, SDL_Renderer* renderer) {
-    // Initialize ImGui context
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-    (void)io;
-    ImGui::StyleColorsDark();
-
     // Handle DPI scaling
     handleDPIScaling(window);
-
-    // Initialize ImGui for SDL and SDL_Renderer
-    ImGui_ImplSDL3_InitForSDLRenderer(window, renderer);
-    ImGui_ImplSDLRenderer3_Init(renderer);
 }
 
 void DeveloperMenu::handleDPIScaling(SDL_Window* window) {

@@ -147,6 +147,13 @@ auto main(int argc, char *argv[]) -> int {
     Character character(renderer, worldId, 15.0F, 20.0F, windowWidth, windowHeight, characterConfig);
     character.setMaxWalkingSpeed(maxWalkingSpeed);
 
+    // Initialize ImGui
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    ImGui::StyleColorsDark();
+    ImGui_ImplSDL3_InitForSDLRenderer(window, renderer);
+    ImGui_ImplSDLRenderer3_Init(renderer);
+
     // Initialize DeveloperMenu
     DeveloperMenu developerMenu;
 
@@ -162,7 +169,9 @@ auto main(int argc, char *argv[]) -> int {
     }
 
     bool running = true;
+    bool showDebugWindow = false;
     constexpr int subStepCount = 8;
+
     while (running) {
         // Handle events
         SDL_Event event;
@@ -173,9 +182,13 @@ auto main(int argc, char *argv[]) -> int {
             }
             // Handle other events (keyboard, mouse, etc.)
             character.handleInput(event);
-            
-            if(developerMode)
-            {
+
+            if (event.type == SDL_EVENT_KEY_DOWN && event.key.key == SDLK_F2) {
+                showDebugWindow = !showDebugWindow;
+                character.showDebugWindow(showDebugWindow);
+            }
+
+            if (developerMode) {
                 developerMenu.handleInput();
 
                 if (event.type == SDL_EVENT_KEY_DOWN && event.key.key == SDLK_F1) {
@@ -191,13 +204,13 @@ auto main(int argc, char *argv[]) -> int {
         // Update physics
         b2World_Step(worldId, TIME_STEP, subStepCount);
 
-        // Update character
-        character.update(TIME_STEP);
-
         // Start the ImGui frame
         ImGui_ImplSDLRenderer3_NewFrame();
         ImGui_ImplSDL3_NewFrame();
         ImGui::NewFrame();
+
+        // Update character
+        character.update(TIME_STEP);
 
         // Game logic and rendering
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, COLOR_ALPHA); // Clear with black color
@@ -233,6 +246,9 @@ auto main(int argc, char *argv[]) -> int {
     developerMenu.saveSettings();
 
     // Cleanup
+    ImGui_ImplSDLRenderer3_Shutdown();
+    ImGui_ImplSDL3_Shutdown();
+    ImGui::DestroyContext();
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();

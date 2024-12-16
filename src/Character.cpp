@@ -5,12 +5,13 @@
 #include <iostream>
 #include <fstream>
 #include <spdlog/spdlog.h>
+#include <imgui.h>
 
 // Scale factor for character size (4x)
 constexpr float TILE_SIZE = 32.0F;
 
 Character::Character(SDL_Renderer* renderer, b2WorldId worldId, float x, float y, uint32_t windowWidth, uint32_t windowHeight, const nlohmann::json& characterConfig)
-    : renderer(renderer), worldId(worldId), x(x), y(y), windowWidth(windowWidth), windowHeight(windowHeight), maxWalkingSpeed(5.0F), isMoving(false) {
+    : renderer(renderer), worldId(worldId), x(x), y(y), windowWidth(windowWidth), windowHeight(windowHeight), maxWalkingSpeed(5.0F), showDebug(false), isMoving(false) {
     spdlog::debug("Initializing character at position ({}, {})", x, y);
 
     // Store the provided configuration data
@@ -39,19 +40,19 @@ void Character::handleInput(const SDL_Event& event) {
         switch (event.key.key) {
             case SDLK_LEFT:
             case SDLK_A:
-                movingLeft = keyDown;
+                isMovingLeft = keyDown;
                 break;
             case SDLK_RIGHT:
             case SDLK_D:
-                movingRight = keyDown;
+                isMovingRight = keyDown;
                 break;
             case SDLK_UP:
             case SDLK_W:
-                movingUp = keyDown;
+                isMovingUp = keyDown;
                 break;
             case SDLK_DOWN:
             case SDLK_S:
-                movingDown = keyDown;
+                isMovingDown = keyDown;
                 break;
             default:
                 break;
@@ -60,46 +61,54 @@ void Character::handleInput(const SDL_Event& event) {
 }
 
 void Character::update(float deltaTime) {
+    elapsedTime += deltaTime;
+
     // Update character position and animation
     b2Vec2 position = b2Body_GetPosition(bodyId);
     x = position.x;
     y = position.y;
 
-    b2Vec2 velocity = b2Vec2_zero;
+    b2Vec2 velocity = b2Body_GetLinearVelocity(bodyId);
 
-    if (movingLeft) {
-        velocity.x -= maxWalkingSpeed;
-        facingRight = false;
+    if (isMovingLeft) {
+        velocity.x = -maxWalkingSpeed;
+        isFacingRight = false;
     }
-    if (movingRight) {
-        velocity.x += maxWalkingSpeed;
-        facingRight = true;
+    if (isMovingRight) {
+        velocity.x = maxWalkingSpeed;
+        isFacingRight = true;
     }
-    if (movingUp) {
-        velocity.y += maxWalkingSpeed;
+    if (isMovingUp) {
+        velocity.y = maxWalkingSpeed;
     }
-    if (movingDown) {
-        velocity.y -= maxWalkingSpeed;
+    if (isMovingDown) {
+        velocity.y = -maxWalkingSpeed;
     }
 
     b2Body_SetLinearVelocity(bodyId, velocity);
 
     if (velocity.x != 0 || velocity.y != 0) {
         walkingAnimation.update(deltaTime);
-        moving = true;
+        isMoving = true;
     } else {
         idleAnimation.update(deltaTime);
-        moving = false;
+        isMoving = false;
     }
 
-    flipAnimation(facingRight);
+    // Flip the animation based on the direction
+    flipAnimation(isFacingRight);
+
+    // Update the debug window
+    if (showDebug) {
+        updateDebugWindow();
+    }
 }
 
 void Character::render(float extraScale, float offsetX, float offsetY, uint32_t windowWidth, uint32_t windowHeight) {
     b2Vec2 position = b2Body_GetPosition(bodyId);
     SDL_FPoint screenPos = Box2DToSDL(position, extraScale, offsetX, offsetY, windowWidth, windowHeight);
 
-    SDL_Texture* currentFrame = moving ? walkingAnimation.getCurrentFrame() : idleAnimation.getCurrentFrame();
+    SDL_Texture* currentFrame = isMoving ? walkingAnimation.getCurrentFrame() : idleAnimation.getCurrentFrame();
     if (currentFrame != nullptr) {
         SDL_FRect dstRect = {
             screenPos.x - ((characterRectangle.w) / 2 * extraScale),
@@ -107,7 +116,7 @@ void Character::render(float extraScale, float offsetX, float offsetY, uint32_t 
             characterRectangle.w * extraScale,
             characterRectangle.h * extraScale
         };
-        SDL_RenderTextureRotated(renderer, currentFrame, nullptr, &dstRect, 0.0, nullptr, moving ? walkingAnimation.getFlip() : idleAnimation.getFlip());
+        SDL_RenderTextureRotated(renderer, currentFrame, nullptr, &dstRect, 0.0, nullptr, isMoving ? walkingAnimation.getFlip() : idleAnimation.getFlip());
     }
 }
 
@@ -212,4 +221,17 @@ void Character::loadWalkingAnimation() {
     }
 
     SDL_DestroySurface(surface);
+}
+
+void Character::showDebugWindow(bool show) {
+    showDebug = show;
+}
+
+void Character::updateDebugWindow() {
+    ImGui::Begin("Character Debug Info", &showDebug);
+    ImGui::Text("Position: (%.2f, %.2f)", x, y);
+    b2Vec2 velocity = b2Body_GetLinearVelocity(bodyId);
+    ImGui::Text("Velocity: (%.2f, %.2f)", velocity.x, velocity.y);
+    ImGui::Text("Speed: %.2f", b2Length(velocity));
+    ImGui::End();
 }
