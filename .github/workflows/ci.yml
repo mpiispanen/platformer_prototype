@@ -15,6 +15,9 @@ jobs:
     - name: Update submodules
       run: git submodule update --init --recursive
 
+    - name: Install X11 libraries
+      run: sudo apt-get update && sudo apt-get install -y libx11-dev libxext-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev
+
     - name: Set up CMake
       uses: lukka/get-cmake@latest
 
@@ -75,6 +78,9 @@ jobs:
 
     - name: Update submodules
       run: git submodule update --init --recursive
+
+    - name: Install X11 libraries
+      run: sudo apt-get update && sudo apt-get install -y libx11-dev libxext-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev
 
     - name: Set up SDL
       uses: libsdl-org/setup-sdl@main

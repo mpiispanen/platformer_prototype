@@ -210,6 +210,7 @@ auto main(int argc, char *argv[]) -> int {
         ImGui::NewFrame();
 
         // Update character
+        character.checkGroundContact();
         character.update(TIME_STEP);
 
         // Game logic and rendering
