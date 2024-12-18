@@ -1,6 +1,10 @@
 {
   "characterSize": { "width": 64, "height": 64 },
   "initialPosition": { "x": 15.0, "y": 20.0 },
+  "groundAcceleration": 10.0,
+  "airAcceleration": 5.0,
+  "maxWalkingSpeed": 7.0,
+  "jumpStrength": 15.0,
   "animations": [
     {
       "name": "idle",
@@ -21,6 +25,21 @@
       "gridDimensions": { "rows": 1, "columns": 6 },
       "characterSpriteSize": { "width": 16, "height": 16 },
       "characterSpritePosition": { "x": 16, "y": 8 }
+    },
+    {
+      "name": "jumping",
+      "filePath": "assets/characters/cat/jumping.png",
+      "animationSpeed": 0.5,
+      "frameSize": { "width": 32, "height": 32 },
+      "frameCount": 7,
+      "gridDimensions": { "rows": 1, "columns": 7 },
+      "characterSpriteSize": { "width": 16, "height": 16 },
+      "characterSpritePosition": { "x": 16, "y": 8 },
+      "frames": [
+        { "type": "jump", "startFrame": 0, "frameCount": 3 },
+        { "type": "falling", "startFrame": 3, "frameCount": 1 },
+        { "type": "landing", "startFrame": 4, "frameCount": 3 }
+      ]
     }
   ]
 }

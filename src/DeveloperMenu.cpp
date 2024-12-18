@@ -4,7 +4,26 @@
 #include <iostream>
 #include "Logging.h"
 
-DeveloperMenu::DeveloperMenu() : isVisible(false), gravity(9.8f), characterSpeed(5.0f), prevGravity(9.8f), prevCharacterSpeed(5.0f) {
+DeveloperMenu::DeveloperMenu(const nlohmann::json& initialSettings)
+    : isVisible(false),
+      gravity(9.8f),
+      characterSpeed(5.0f),
+      prevGravity(9.8f),
+      prevCharacterSpeed(5.0f),
+      jumpStrength(initialSettings.value("jumpStrength", 10.0f)),
+      minJumpHeight(initialSettings.value("minJumpHeight", 1.0f)),
+      maxJumpHeight(initialSettings.value("maxJumpHeight", 5.0f)),
+      jumpCooldownDuration(initialSettings.value("jumpCooldownDuration", 0.5f)),
+      prevJumpStrength(jumpStrength),
+      prevMinJumpHeight(minJumpHeight),
+      prevMaxJumpHeight(maxJumpHeight),
+      prevJumpCooldownDuration(jumpCooldownDuration),
+      groundAcceleration(initialSettings.value("groundAcceleration", 10.0f)),
+      airAcceleration(initialSettings.value("airAcceleration", 5.0f)),
+      maxWalkingSpeed(initialSettings.value("maxWalkingSpeed", 7.0f)),
+      prevGroundAcceleration(groundAcceleration),
+      prevAirAcceleration(airAcceleration),
+      prevMaxWalkingSpeed(maxWalkingSpeed) {
     loadSettings();
 }
 
@@ -40,6 +59,34 @@ void DeveloperMenu::render() {
     if (ImGui::SliderFloat("Character Speed", &characterSpeed, 0.0f, 20.0f)) {
         notifyObservers("characterSpeed", characterSpeed);
     }
+    ImGui::Text("Jump Strength: %.2f", jumpStrength);
+    if (ImGui::SliderFloat("Jump Strength", &jumpStrength, 0.0f, 50.0f)) {
+        notifyObservers("jumpStrength", jumpStrength);
+    }
+    ImGui::Text("Minimum Jump Height: %.2f", minJumpHeight);
+    if (ImGui::SliderFloat("Minimum Jump Height", &minJumpHeight, 0.0f, 10.0f)) {
+        notifyObservers("minJumpHeight", minJumpHeight);
+    }
+    ImGui::Text("Maximum Jump Height: %.2f", maxJumpHeight);
+    if (ImGui::SliderFloat("Maximum Jump Height", &maxJumpHeight, 0.0f, 20.0f)) {
+        notifyObservers("maxJumpHeight", maxJumpHeight);
+    }
+    ImGui::Text("Jump Cooldown Duration: %.2f", jumpCooldownDuration);
+    if (ImGui::SliderFloat("Jump Cooldown Duration", &jumpCooldownDuration, 0.0f, 5.0f)) {
+        notifyObservers("jumpCooldownDuration", jumpCooldownDuration);
+    }
+    ImGui::Text("Ground Acceleration: %.2f", groundAcceleration);
+    if (ImGui::SliderFloat("Ground Acceleration", &groundAcceleration, 0.0f, 20.0f)) {
+        notifyObservers("groundAcceleration", groundAcceleration);
+    }
+    ImGui::Text("Air Acceleration: %.2f", airAcceleration);
+    if (ImGui::SliderFloat("Air Acceleration", &airAcceleration, 0.0f, 20.0f)) {
+        notifyObservers("airAcceleration", airAcceleration);
+    }
+    ImGui::Text("Max Walking Speed: %.2f", maxWalkingSpeed);
+    if (ImGui::SliderFloat("Max Walking Speed", &maxWalkingSpeed, 0.0f, 20.0f)) {
+        notifyObservers("maxWalkingSpeed", maxWalkingSpeed);
+    }
     ImGui::End();
 }
 
@@ -54,8 +101,20 @@ void DeveloperMenu::loadSettings() {
         settingsFile.close();
         gravity = settings.value("gravity", 9.8f);
         characterSpeed = settings.value("characterSpeed", 5.0f);
+        jumpStrength = settings.value("jumpStrength", 10.0f);
+        jumpCooldownDuration = settings.value("jumpCooldownDuration", 0.5f);
+        groundAcceleration = settings.value("groundAcceleration", 10.0f);
+        airAcceleration = settings.value("airAcceleration", 5.0f);
+        maxWalkingSpeed = settings.value("maxWalkingSpeed", 7.0f);
         prevGravity = gravity;
         prevCharacterSpeed = characterSpeed;
+        prevJumpStrength = jumpStrength;
+        prevMinJumpHeight = minJumpHeight;
+        prevMaxJumpHeight = maxJumpHeight;
+        prevJumpCooldownDuration = jumpCooldownDuration;
+        prevGroundAcceleration = groundAcceleration;
+        prevAirAcceleration = airAcceleration;
+        prevMaxWalkingSpeed = maxWalkingSpeed;
     } else {
         spdlog::warn("Failed to open developer_menu_settings.json. Using default settings.");
     }
@@ -64,6 +123,11 @@ void DeveloperMenu::loadSettings() {
 void DeveloperMenu::saveSettings() {
     settings["gravity"] = gravity;
     settings["characterSpeed"] = characterSpeed;
+    settings["jumpStrength"] = jumpStrength;
+    settings["jumpCooldownDuration"] = jumpCooldownDuration;
+    settings["groundAcceleration"] = groundAcceleration;
+    settings["airAcceleration"] = airAcceleration;
+    settings["maxWalkingSpeed"] = maxWalkingSpeed;
     std::ofstream settingsFile("developer_menu_settings.json");
     if (settingsFile.is_open()) {
         settingsFile << settings.dump(4);
@@ -90,5 +154,9 @@ void DeveloperMenu::notifyObservers(const std::string& settingName, float newVal
 void DeveloperMenu::notifyAllObservers() {
     notifyObservers("gravity", gravity);
     notifyObservers("characterSpeed", characterSpeed);
+    notifyObservers("jumpStrength", jumpStrength);
+    notifyObservers("jumpCooldownDuration", jumpCooldownDuration);
+    notifyObservers("groundAcceleration", groundAcceleration);
+    notifyObservers("airAcceleration", airAcceleration);
+    notifyObservers("maxWalkingSpeed", maxWalkingSpeed);
 }
-

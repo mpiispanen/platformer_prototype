@@ -11,4 +11,9 @@ public:
 private:
     b2WorldId worldId;
     Character& character;
+
+    float jumpStrength;
+    float minJumpHeight;
+    float maxJumpHeight;
+    float jumpCooldownDuration;
 };

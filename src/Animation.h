@@ -13,6 +13,9 @@ public:
     [[nodiscard]] auto getCurrentFrame() const -> SDL_Texture*;
     [[nodiscard]] auto getFlip() const -> SDL_FlipMode;
     void setFlip(SDL_FlipMode flip);
+    void setLooping(bool looping);
+    [[nodiscard]] auto getCurrentFrameIndex() const -> int;
+    [[nodiscard]] auto getTotalFrames() const -> int;
 
 private:
     struct Frame {
@@ -24,4 +27,6 @@ private:
     int currentFrameIndex;
     float currentTime;
     SDL_FlipMode flip;
+    bool isLooping;
+    int offset;
 };
