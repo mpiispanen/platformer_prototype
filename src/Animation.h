@@ -2,6 +2,7 @@
 
 #include <SDL3/SDL.h>
 #include <vector>
+#include <string>
 
 class Animation {
 public:
@@ -14,6 +15,9 @@ public:
     [[nodiscard]] auto getFlip() const -> SDL_FlipMode;
     void setFlip(SDL_FlipMode flip);
     void setLooping(bool looping);
+    void reset();
+    void setName(const std::string& name);
+    [[nodiscard]] auto getName() const -> std::string;
     [[nodiscard]] auto getCurrentFrameIndex() const -> int;
     [[nodiscard]] auto getTotalFrames() const -> int;
 
@@ -28,5 +32,5 @@ private:
     float currentTime;
     SDL_FlipMode flip;
     bool isLooping;
-    int offset;
+    std::string name;
 };

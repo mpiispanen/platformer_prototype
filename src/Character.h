@@ -64,6 +64,7 @@ private:
 
     float debugPrintInterval;
     float elapsedTime;
+    float timeSinceLastGroundContact; // New member variable
 
     // Jump-related member variables
     float jumpStrength;

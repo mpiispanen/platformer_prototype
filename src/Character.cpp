@@ -17,7 +17,7 @@ constexpr float TILE_SIZE = 32.0F;
 constexpr float LANDING_THRESHOLD = 0.2F; // Threshold time for landing animation
 
 Character::Character(SDL_Renderer* renderer, b2WorldId worldId, float x, float y, uint32_t windowWidth, uint32_t windowHeight, const nlohmann::json& characterConfig)
-    : renderer(renderer), worldId(worldId), windowWidth(windowWidth), windowHeight(windowHeight), showDebug(false), isOnGround(false), jumpCooldownTimer(0.0F), elapsedTime(0.0F) {
+    : renderer(renderer), worldId(worldId), windowWidth(windowWidth), windowHeight(windowHeight), showDebug(false), isOnGround(false), jumpCooldownTimer(0.0F), elapsedTime(0.0F), timeSinceLastGroundContact(0.0F) {
     position = {x, y};
     
     spdlog::debug("Initializing character at position ({}, {})", position.x, position.y);
@@ -37,6 +37,8 @@ Character::Character(SDL_Renderer* renderer, b2WorldId worldId, float x, float y
     loadJumpingAnimation();
     loadFallingAnimation();
     loadLandingAnimation();
+
+    currentAnimation = &idleAnimation;
 
     // Initialize acceleration values
     groundAcceleration = characterConfig["groundAcceleration"];
@@ -73,36 +75,41 @@ void Character::handleInput(const SDL_Event& event) {
 void Character::update(float deltaTime) {
     elapsedTime += deltaTime;
 
-    // Apply movement based on input
     applyMovement(deltaTime);
 
-    // Update character position and animation
+    b2Vec2 velocity = b2Body_GetLinearVelocity(bodyId);
+
+    bool wasOnGround = isOnGround;
+    checkGroundContact();
+
     position = b2Body_GetPosition(bodyId);
 
-    // Update animations
-    idleAnimation.update(deltaTime);
-    walkingAnimation.update(deltaTime);
-    jumpingAnimation.update(deltaTime);
-    fallingAnimation.update(deltaTime);
-    landingAnimation.update(deltaTime);
+    Animation* newAnimation = nullptr;
 
-    // Update character state and animation
-    b2Vec2 velocity = b2Body_GetLinearVelocity(bodyId);
     if (isOnGround) {
-        if (std::abs(velocity.x) > 0.1f) {
-            currentAnimation = &walkingAnimation;
+        if (!wasOnGround && timeSinceLastGroundContact > LANDING_THRESHOLD) {
+            newAnimation = &landingAnimation;
+        } else if (std::abs(velocity.x) > 0.1f) {
+            newAnimation = &walkingAnimation;
         } else {
-            currentAnimation = &idleAnimation;
+            newAnimation = &idleAnimation;
         }
+        timeSinceLastGroundContact = 0.0f; // Reset time since last ground contact when on the ground
     } else {
-        if (velocity.y > 0) {
-            currentAnimation = &jumpingAnimation;
+        if (velocity.y >= 0) {
+            newAnimation = &jumpingAnimation;
         } else if (velocity.y < 0) {
-            currentAnimation = &fallingAnimation;
-        } else if (elapsedTime > LANDING_THRESHOLD) {
-            currentAnimation = &landingAnimation;
+            newAnimation = &fallingAnimation;
         }
+        timeSinceLastGroundContact += deltaTime; // Increment time since last ground contact when in the air
     }
+
+    if (newAnimation && currentAnimation != newAnimation) {
+        currentAnimation = newAnimation;
+        currentAnimation->reset(); // Reset animation to frame 0
+    }
+
+    currentAnimation->update(deltaTime);
 
     if (showDebug) {
         updateDebugWindow();
@@ -305,23 +312,30 @@ void Character::loadJumpingAnimation() {
     int characterSpriteHeight = config["characterSpriteSize"]["height"];
     int characterSpritePosX = config["characterSpritePosition"]["x"];
     int characterSpritePosY = config["characterSpritePosition"]["y"];
-    int frameCount = config["frameCount"];
     int animationSpeed = static_cast<int>(config["animationSpeed"].get<float>() * 1000);
 
-    for (int i = 0; i < frameCount; ++i) {
-        SDL_Surface* frameSurface = SDL_CreateSurface(characterSpriteWidth, characterSpriteHeight, SDL_PIXELFORMAT_RGBA8888);
-        SDL_Rect srcRect = {
-            characterSpritePosX + (i * frameWidth) - (characterSpriteWidth/2),
-            characterSpritePosY + (characterSpriteHeight/2),
-            characterSpriteWidth,
-            characterSpriteHeight
-        };
-        SDL_BlitSurface(surface, &srcRect, frameSurface, nullptr);
+    for (const auto& frame : config["frames"]) {
+        if (frame["type"] == "jump") {
+            int startFrame = frame["startFrame"];
+            int frameCount = frame["frameCount"];
+            bool looping = frame.value("looping", config.value("looping", false));
+            for (int i = 0; i < frameCount; ++i) {
+                SDL_Surface* frameSurface = SDL_CreateSurface(characterSpriteWidth, characterSpriteHeight, SDL_PIXELFORMAT_RGBA8888);
+                SDL_Rect srcRect = {
+                    characterSpritePosX + ((startFrame + i) * frameWidth) - (characterSpriteWidth / 2),
+                    characterSpritePosY + (characterSpriteHeight / 2),
+                    characterSpriteWidth,
+                    characterSpriteHeight
+                };
+                SDL_BlitSurface(surface, &srcRect, frameSurface, nullptr);
 
-        SDL_Texture* frameTexture = SDL_CreateTextureFromSurface(renderer, frameSurface);
-        jumpingAnimation.addFrame(frameTexture, animationSpeed);
+                SDL_Texture* frameTexture = SDL_CreateTextureFromSurface(renderer, frameSurface);
+                jumpingAnimation.addFrame(frameTexture, animationSpeed);
 
-        SDL_DestroySurface(frameSurface);
+                SDL_DestroySurface(frameSurface);
+            }
+            jumpingAnimation.setLooping(looping);
+        }
     }
 
     SDL_DestroySurface(surface);
@@ -341,23 +355,30 @@ void Character::loadFallingAnimation() {
     int characterSpriteHeight = config["characterSpriteSize"]["height"];
     int characterSpritePosX = config["characterSpritePosition"]["x"];
     int characterSpritePosY = config["characterSpritePosition"]["y"];
-    int frameCount = config["frameCount"];
     int animationSpeed = static_cast<int>(config["animationSpeed"].get<float>() * 1000);
 
-    for (int i = 0; i < frameCount; ++i) {
-        SDL_Surface* frameSurface = SDL_CreateSurface(characterSpriteWidth, characterSpriteHeight, SDL_PIXELFORMAT_RGBA8888);
-        SDL_Rect srcRect = {
-            characterSpritePosX + (i * frameWidth) - (characterSpriteWidth/2),
-            characterSpritePosY + (characterSpriteHeight/2),
-            characterSpriteWidth,
-            characterSpriteHeight
-        };
-        SDL_BlitSurface(surface, &srcRect, frameSurface, nullptr);
+    for (const auto& frame : config["frames"]) {
+        if (frame["type"] == "falling") {
+            int startFrame = frame["startFrame"];
+            int frameCount = frame["frameCount"];
+            bool looping = frame.value("looping", config.value("looping", false));
+            for (int i = 0; i < frameCount; ++i) {
+                SDL_Surface* frameSurface = SDL_CreateSurface(characterSpriteWidth, characterSpriteHeight, SDL_PIXELFORMAT_RGBA8888);
+                SDL_Rect srcRect = {
+                    characterSpritePosX + ((startFrame + i) * frameWidth) - (characterSpriteWidth / 2),
+                    characterSpritePosY + (characterSpriteHeight / 2),
+                    characterSpriteWidth,
+                    characterSpriteHeight
+                };
+                SDL_BlitSurface(surface, &srcRect, frameSurface, nullptr);
 
-        SDL_Texture* frameTexture = SDL_CreateTextureFromSurface(renderer, frameSurface);
-        fallingAnimation.addFrame(frameTexture, animationSpeed);
+                SDL_Texture* frameTexture = SDL_CreateTextureFromSurface(renderer, frameSurface);
+                fallingAnimation.addFrame(frameTexture, animationSpeed);
 
-        SDL_DestroySurface(frameSurface);
+                SDL_DestroySurface(frameSurface);
+            }
+            fallingAnimation.setLooping(looping);
+        }
     }
 
     SDL_DestroySurface(surface);
@@ -377,23 +398,30 @@ void Character::loadLandingAnimation() {
     int characterSpriteHeight = config["characterSpriteSize"]["height"];
     int characterSpritePosX = config["characterSpritePosition"]["x"];
     int characterSpritePosY = config["characterSpritePosition"]["y"];
-    int frameCount = config["frameCount"];
     int animationSpeed = static_cast<int>(config["animationSpeed"].get<float>() * 1000);
 
-    for (int i = 0; i < frameCount; ++i) {
-        SDL_Surface* frameSurface = SDL_CreateSurface(characterSpriteWidth, characterSpriteHeight, SDL_PIXELFORMAT_RGBA8888);
-        SDL_Rect srcRect = {
-            characterSpritePosX + (i * frameWidth) - (characterSpriteWidth/2),
-            characterSpritePosY + (characterSpriteHeight/2),
-            characterSpriteWidth,
-            characterSpriteHeight
-        };
-        SDL_BlitSurface(surface, &srcRect, frameSurface, nullptr);
+    for (const auto& frame : config["frames"]) {
+        if (frame["type"] == "landing") {
+            int startFrame = frame["startFrame"];
+            int frameCount = frame["frameCount"];
+            bool looping = frame.value("looping", config.value("looping", false));
+            for (int i = 0; i < frameCount; ++i) {
+                SDL_Surface* frameSurface = SDL_CreateSurface(characterSpriteWidth, characterSpriteHeight, SDL_PIXELFORMAT_RGBA8888);
+                SDL_Rect srcRect = {
+                    characterSpritePosX + ((startFrame + i) * frameWidth) - (characterSpriteWidth / 2),
+                    characterSpritePosY + (characterSpriteHeight / 2),
+                    characterSpriteWidth,
+                    characterSpriteHeight
+                };
+                SDL_BlitSurface(surface, &srcRect, frameSurface, nullptr);
 
-        SDL_Texture* frameTexture = SDL_CreateTextureFromSurface(renderer, frameSurface);
-        landingAnimation.addFrame(frameTexture, animationSpeed);
+                SDL_Texture* frameTexture = SDL_CreateTextureFromSurface(renderer, frameSurface);
+                landingAnimation.addFrame(frameTexture, animationSpeed);
 
-        SDL_DestroySurface(frameSurface);
+                SDL_DestroySurface(frameSurface);
+            }
+            landingAnimation.setLooping(looping);
+        }
     }
 
     SDL_DestroySurface(surface);

@@ -46,6 +46,19 @@ void Animation::setLooping(bool looping) {
     isLooping = looping;
 }
 
+void Animation::reset() {
+    currentFrameIndex = 0;
+    currentTime = 0.0F;
+}
+
+void Animation::setName(const std::string& name) {
+    this->name = name;
+}
+
+auto Animation::getName() const -> std::string {
+    return name;
+}
+
 auto Animation::getCurrentFrameIndex() const -> int {
     return currentFrameIndex;
 }

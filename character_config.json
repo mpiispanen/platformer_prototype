@@ -14,7 +14,8 @@
       "frameCount": 4,
       "gridDimensions": { "rows": 1, "columns": 4 },
       "characterSpriteSize": { "width": 16, "height": 16 },
-      "characterSpritePosition": { "x": 16, "y": 8 }
+      "characterSpritePosition": { "x": 16, "y": 8 },
+      "looping": true
     },
     {
       "name": "walking",
@@ -24,21 +25,22 @@
       "frameCount": 8,
       "gridDimensions": { "rows": 1, "columns": 6 },
       "characterSpriteSize": { "width": 16, "height": 16 },
-      "characterSpritePosition": { "x": 16, "y": 8 }
+      "characterSpritePosition": { "x": 16, "y": 8 },
+      "looping": true
     },
     {
       "name": "jumping",
       "filePath": "assets/characters/cat/jumping.png",
-      "animationSpeed": 0.5,
+      "animationSpeed": 0.1,
       "frameSize": { "width": 32, "height": 32 },
       "frameCount": 7,
       "gridDimensions": { "rows": 1, "columns": 7 },
       "characterSpriteSize": { "width": 16, "height": 16 },
       "characterSpritePosition": { "x": 16, "y": 8 },
       "frames": [
-        { "type": "jump", "startFrame": 0, "frameCount": 3 },
-        { "type": "falling", "startFrame": 3, "frameCount": 1 },
-        { "type": "landing", "startFrame": 4, "frameCount": 3 }
+        { "type": "jump", "startFrame": 0, "frameCount": 3, "looping": false },
+        { "type": "falling", "startFrame": 3, "frameCount": 1, "looping": false },
+        { "type": "landing", "startFrame": 4, "frameCount": 3, "looping": false}
       ]
     }
   ]
