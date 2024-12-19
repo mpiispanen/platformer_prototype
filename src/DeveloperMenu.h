@@ -10,7 +10,7 @@
 
 class DeveloperMenu {
 public:
-    DeveloperMenu();
+    DeveloperMenu(const nlohmann::json& initialSettings);
     ~DeveloperMenu();
 
     void init(SDL_Window* window, SDL_Renderer* renderer);
@@ -29,10 +29,27 @@ private:
     float gravity;
     float characterSpeed;
 
-    // Previous values to track changes
     float prevGravity;
     float prevCharacterSpeed;
 
     std::vector<Observer*> observers;
     nlohmann::json settings;
+
+    float jumpStrength;
+    float minJumpHeight;
+    float maxJumpHeight;
+    float jumpCooldownDuration;
+
+    float prevJumpStrength;
+    float prevMinJumpHeight;
+    float prevMaxJumpHeight;
+    float prevJumpCooldownDuration;
+
+    float groundAcceleration;
+    float airAcceleration;
+    float maxWalkingSpeed;
+
+    float prevGroundAcceleration;
+    float prevAirAcceleration;
+    float prevMaxWalkingSpeed;
 };

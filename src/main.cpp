@@ -154,8 +154,8 @@ auto main(int argc, char *argv[]) -> int {
     ImGui_ImplSDL3_InitForSDLRenderer(window, renderer);
     ImGui_ImplSDLRenderer3_Init(renderer);
 
-    // Initialize DeveloperMenu
-    DeveloperMenu developerMenu;
+    // Initialize DeveloperMenu with initial settings from characterConfig
+    DeveloperMenu developerMenu(characterConfig);
 
     // Notify all observers of the initial settings if developer mode is enabled
     if (developerMode) {

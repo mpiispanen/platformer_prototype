@@ -20,6 +20,19 @@ public:
     void showDebugWindow(bool show);
     void checkGroundContact();
 
+    // Methods for setting jump-related parameters
+    void setJumpStrength(float strength);
+    void setJumpCooldownDuration(float duration);
+
+    // Methods for handling jump input, applying jump force, and updating jump state
+    void handleJumpInput(bool keyDown);
+    void applyJumpImpulse();
+    void updateJumpState(float deltaTime);
+
+    // Methods for setting acceleration values
+    void setGroundAcceleration(float acceleration);
+    void setAirAcceleration(float acceleration);
+
 private:
     SDL_Renderer* renderer;
     b2WorldId worldId;
@@ -27,31 +40,48 @@ private:
     SDL_Rect characterRectangle;
     Animation idleAnimation;
     Animation walkingAnimation;
+    Animation jumpingAnimation;
+    Animation fallingAnimation;
+    Animation landingAnimation;
+    Animation* currentAnimation; 
+    
     float maxWalkingSpeed;
-    float acceleration;
+    float groundAcceleration;
+    float airAcceleration;
     float deceleration;
-    float x;
-    float y;
+    b2Vec2 position; // Change x and y to b2Vec2
     int windowWidth;
     int windowHeight;
     bool showDebug;
     bool isOnGround;
 
-    bool isMoving {false};
-    bool isMovingLeft {false};
-    bool isMovingRight {false};
-    bool isMovingUp {false};
-    bool isMovingDown {false};
+    bool moveLeftRequested {false};
+    bool moveRightRequested {false};
+    bool jumpRequested {false};
     bool isFacingRight {true};
 
     std::unordered_map<std::string, nlohmann::json> animationConfigs;
 
     float debugPrintInterval;
     float elapsedTime;
+    float timeSinceLastGroundContact; // New member variable
+
+    // Jump-related member variables
+    float jumpStrength;
+    float minJumpHeight;
+    float maxJumpHeight;
+    float jumpCooldownDuration;
+    float jumpInputDuration;
+    float jumpCooldownTimer;
 
     void createBody();
     void loadIdleAnimation();
     void loadWalkingAnimation();
+    void loadJumpingAnimation();
+    void loadFallingAnimation();
+    void loadLandingAnimation();
     void flipAnimation(bool faceRight);
     void updateDebugWindow();
+    void displayCurrentAnimationInfo();
+    void applyMovement(float deltaTime);
 };
