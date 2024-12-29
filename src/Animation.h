@@ -20,6 +20,7 @@ public:
     [[nodiscard]] auto getName() const -> std::string;
     [[nodiscard]] auto getCurrentFrameIndex() const -> int;
     [[nodiscard]] auto getTotalFrames() const -> int;
+    bool hasCompleted() const;
 
 private:
     struct Frame {
@@ -33,4 +34,5 @@ private:
     SDL_FlipMode flip;
     bool isLooping;
     std::string name;
+    bool isCompleted;
 };
