@@ -1,6 +1,6 @@
 #include "Animation.h"
 
-Animation::Animation() : currentFrameIndex(0), currentTime(0.0F), flip(SDL_FLIP_NONE), isLooping(true) {}
+Animation::Animation() : currentFrameIndex(0), currentTime(0.0F), flip(SDL_FLIP_NONE), isLooping(true), isCompleted(false) {}
 
 Animation::~Animation() {
     for (auto& frame : frames) {
@@ -24,6 +24,8 @@ void Animation::update(float deltaTime) {
         } else {
             if (currentFrameIndex < frames.size() - 1) {
                 currentFrameIndex++;
+            } else {
+                isCompleted = true;
             }
         }
     }
@@ -49,6 +51,7 @@ void Animation::setLooping(bool looping) {
 void Animation::reset() {
     currentFrameIndex = 0;
     currentTime = 0.0F;
+    isCompleted = false;
 }
 
 void Animation::setName(const std::string& name) {
@@ -65,4 +68,8 @@ auto Animation::getCurrentFrameIndex() const -> int {
 
 auto Animation::getTotalFrames() const -> int {
     return frames.size();
+}
+
+bool Animation::hasCompleted() const {
+    return isCompleted;
 }

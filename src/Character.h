@@ -49,11 +49,12 @@ private:
     float groundAcceleration;
     float airAcceleration;
     float deceleration;
-    b2Vec2 position; // Change x and y to b2Vec2
+    b2Vec2 position;
     int windowWidth;
     int windowHeight;
     bool showDebug;
     bool isOnGround;
+    bool wasOnGround;
 
     bool moveLeftRequested {false};
     bool moveRightRequested {false};
@@ -64,7 +65,7 @@ private:
 
     float debugPrintInterval;
     float elapsedTime;
-    float timeSinceLastGroundContact; // New member variable
+    float timeSinceLastGroundContact;
 
     // Jump-related member variables
     float jumpStrength;

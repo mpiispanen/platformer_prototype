@@ -79,7 +79,6 @@ void Character::update(float deltaTime) {
 
     b2Vec2 velocity = b2Body_GetLinearVelocity(bodyId);
 
-    bool wasOnGround = isOnGround;
     checkGroundContact();
 
     position = b2Body_GetPosition(bodyId);
@@ -105,8 +104,10 @@ void Character::update(float deltaTime) {
     }
 
     if (newAnimation && currentAnimation != newAnimation) {
-        currentAnimation = newAnimation;
-        currentAnimation->reset(); // Reset animation to frame 0
+        if (currentAnimation != &landingAnimation || currentAnimation->hasCompleted()) {
+            currentAnimation = newAnimation;
+            currentAnimation->reset(); // Reset animation to frame 0
+        }
     }
 
     currentAnimation->update(deltaTime);
@@ -114,6 +115,8 @@ void Character::update(float deltaTime) {
     if (showDebug) {
         updateDebugWindow();
     }
+
+    wasOnGround = isOnGround;
 }
 
 void Character::render(float scale, float offsetX, float offsetY, uint32_t windowWidth, uint32_t windowHeight) {
