@@ -5,7 +5,11 @@
     "groundAcceleration": 20.0,
     "jumpCooldownDuration": 1.5219999551773071,
     "jumpStrength": 50.0,
+    "maxContactPoints": 40,
     "maxJumpHeight": 7.574999809265137,
     "maxWalkingSpeed": 7.0,
-    "minJumpHeight": 5.238999843597412
+    "minJumpHeight": 5.238999843597412,
+    "showContactPoints": true,
+    "showDebugVisualizations": true,
+    "showForceVisualizations": false
 }

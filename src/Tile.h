@@ -33,4 +33,7 @@ private:
     SDL_Renderer* renderer;
     SDL_Texture* texture;
     Animation animation;
+
+    // Debug visualization member variables
+    bool showForceVectors;
 };

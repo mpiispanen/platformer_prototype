@@ -19,5 +19,13 @@ void GameSettingsObserver::onSettingChanged(const std::string& settingName, floa
         character.setAirAcceleration(newValue);
     } else if (settingName == "maxWalkingSpeed") {
         character.setMaxWalkingSpeed(newValue);
+    } else if (settingName == "showDebugVisualizations") {
+        character.setShowDebugRectangles(static_cast<bool>(newValue));
+    } else if (settingName == "showContactPoints") {
+        character.setShowContactPoints(static_cast<bool>(newValue));
+    } else if (settingName == "showForceVisualizations") {
+        character.setShowForceVectors(static_cast<bool>(newValue));
+    } else if (settingName == "maxContactPoints") {
+        character.setMaxContactPoints(static_cast<int>(newValue));
     }
 }

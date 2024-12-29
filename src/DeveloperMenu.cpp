@@ -23,7 +23,11 @@ DeveloperMenu::DeveloperMenu(const nlohmann::json& initialSettings)
       maxWalkingSpeed(initialSettings.value("maxWalkingSpeed", 7.0f)),
       prevGroundAcceleration(groundAcceleration),
       prevAirAcceleration(airAcceleration),
-      prevMaxWalkingSpeed(maxWalkingSpeed) {
+      prevMaxWalkingSpeed(maxWalkingSpeed),
+      showDebugVisualizations(false),
+      showContactPoints(false),
+      showForceVisualizations(false),
+      maxContactPoints(initialSettings.value("maxContactPoints", 10)) { // Add this line
     loadSettings();
 }
 
@@ -87,6 +91,19 @@ void DeveloperMenu::render() {
     if (ImGui::SliderFloat("Max Walking Speed", &maxWalkingSpeed, 0.0f, 20.0f)) {
         notifyObservers("maxWalkingSpeed", maxWalkingSpeed);
     }
+    if (ImGui::Checkbox("Show Debug Visualizations", &showDebugVisualizations)) {
+        notifyObservers("showDebugVisualizations", showDebugVisualizations);
+    }
+    if (ImGui::Checkbox("Show Contact Points", &showContactPoints)) {
+        notifyObservers("showContactPoints", showContactPoints);
+    }
+    if (ImGui::Checkbox("Show Force Visualizations", &showForceVisualizations)) {
+        notifyObservers("showForceVisualizations", showForceVisualizations);
+    }
+    ImGui::Text("Max Contact Points: %d", maxContactPoints);
+    if (ImGui::SliderInt("Max Contact Points", &maxContactPoints, 1, 100)) {
+        notifyObservers("maxContactPoints", static_cast<float>(maxContactPoints));
+    }
     ImGui::End();
 }
 
@@ -106,6 +123,10 @@ void DeveloperMenu::loadSettings() {
         groundAcceleration = settings.value("groundAcceleration", 10.0f);
         airAcceleration = settings.value("airAcceleration", 5.0f);
         maxWalkingSpeed = settings.value("maxWalkingSpeed", 7.0f);
+        showDebugVisualizations = settings.value("showDebugVisualizations", false);
+        showContactPoints = settings.value("showContactPoints", false);
+        showForceVisualizations = settings.value("showForceVisualizations", false);
+        maxContactPoints = settings.value("maxContactPoints", 10); 
         prevGravity = gravity;
         prevCharacterSpeed = characterSpeed;
         prevJumpStrength = jumpStrength;
@@ -128,6 +149,10 @@ void DeveloperMenu::saveSettings() {
     settings["groundAcceleration"] = groundAcceleration;
     settings["airAcceleration"] = airAcceleration;
     settings["maxWalkingSpeed"] = maxWalkingSpeed;
+    settings["showDebugVisualizations"] = showDebugVisualizations;
+    settings["showContactPoints"] = showContactPoints;
+    settings["showForceVisualizations"] = showForceVisualizations;
+    settings["maxContactPoints"] = maxContactPoints;
     std::ofstream settingsFile("developer_menu_settings.json");
     if (settingsFile.is_open()) {
         settingsFile << settings.dump(4);
@@ -159,4 +184,8 @@ void DeveloperMenu::notifyAllObservers() {
     notifyObservers("groundAcceleration", groundAcceleration);
     notifyObservers("airAcceleration", airAcceleration);
     notifyObservers("maxWalkingSpeed", maxWalkingSpeed);
+    notifyObservers("showDebugVisualizations", showDebugVisualizations);
+    notifyObservers("showContactPoints", showContactPoints);
+    notifyObservers("showForceVisualizations", showForceVisualizations);
+    notifyObservers("maxContactPoints", static_cast<float>(maxContactPoints)); // Add this line
 }

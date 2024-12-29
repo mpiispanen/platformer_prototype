@@ -7,6 +7,7 @@
 #include "Animation.h"
 #include <unordered_map>
 #include <string>
+#include <deque>
 
 class Character {
 public:
@@ -20,18 +21,20 @@ public:
     void showDebugWindow(bool show);
     void checkGroundContact();
 
-    // Methods for setting jump-related parameters
     void setJumpStrength(float strength);
     void setJumpCooldownDuration(float duration);
 
-    // Methods for handling jump input, applying jump force, and updating jump state
     void handleJumpInput(bool keyDown);
     void applyJumpImpulse();
     void updateJumpState(float deltaTime);
 
-    // Methods for setting acceleration values
     void setGroundAcceleration(float acceleration);
     void setAirAcceleration(float acceleration);
+
+    void setShowDebugRectangles(bool value);
+    void setShowContactPoints(bool value);
+    void setShowForceVectors(bool value);
+    void setMaxContactPoints(int maxPoints); 
 
 private:
     SDL_Renderer* renderer;
@@ -75,6 +78,14 @@ private:
     float jumpInputDuration;
     float jumpCooldownTimer;
 
+    // Debug visualization member variables
+    bool showDebugRectangles;
+    bool showContactPoints;
+    bool showForceVectors;
+    SDL_Color debugColor;
+    std::deque<b2Vec2> contactPoints; // Change to deque
+    int maxContactPoints; // Add this line
+
     void createBody();
     void loadIdleAnimation();
     void loadWalkingAnimation();
@@ -85,4 +96,6 @@ private:
     void updateDebugWindow();
     void displayCurrentAnimationInfo();
     void applyMovement(float deltaTime);
+    void updateDebugColor();
+    SDL_Color interpolateColor(const SDL_Color& startColor, const SDL_Color& endColor, float t);
 };

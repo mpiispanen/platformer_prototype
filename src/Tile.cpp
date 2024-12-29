@@ -5,7 +5,7 @@
 #include <spdlog/spdlog.h>
 
 Tile::Tile(SDL_Renderer* renderer, const std::string& type, b2BodyId bodyId, b2ShapeId shapeId, uint32_t width, uint32_t height, const std::string& assetDir)
-    : renderer(renderer), bodyId(bodyId), shapeId(shapeId), width(width), height(height), type(type) {
+    : renderer(renderer), bodyId(bodyId), shapeId(shapeId), width(width), height(height), type(type), showForceVectors(false) {
     std::string texturePath = assetDir + "/tiles/" + type + ".png";
     SDL_Surface* surface = IMG_Load(texturePath.c_str());
     if (surface == nullptr) {
@@ -50,6 +50,16 @@ void Tile::render(float scale, float offsetX, float offsetY, uint32_t windowWidt
     //             type, position.x, position.y, screenPos.x, screenPos.y);
 
     SDL_RenderTexture(renderer, texture, nullptr, &dstRect);
+
+    if (showForceVectors) {
+        b2Vec2 velocity = b2Body_GetLinearVelocity(bodyId); // Assuming you want to get the linear velocity instead of force
+        SDL_FPoint forceEndPos = {
+            screenPos.x + (velocity.x * scale),
+            screenPos.y - (velocity.y * scale)
+        };
+        SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255); // Blue for gravity
+        SDL_RenderLine(renderer, screenPos.x, screenPos.y, forceEndPos.x, forceEndPos.y);
+    }
 }
 
 void Tile::updateAnimation(float deltaTime) {

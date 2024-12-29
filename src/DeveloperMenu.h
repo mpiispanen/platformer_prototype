@@ -52,4 +52,9 @@ private:
     float prevGroundAcceleration;
     float prevAirAcceleration;
     float prevMaxWalkingSpeed;
+
+    bool showDebugVisualizations;
+    bool showContactPoints;
+    bool showForceVisualizations;
+    int maxContactPoints;
 };
