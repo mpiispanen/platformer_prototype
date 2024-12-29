@@ -264,7 +264,8 @@ void Character::createBody() {
     b2BodyDef bodyDef = b2DefaultBodyDef();
     bodyDef.type = b2_dynamicBody;
     bodyDef.position = position;
-
+    bodyDef.fixedRotation = true;
+    
     bodyId = b2CreateBody(worldId, &bodyDef);
 
     // Scale physics body to match visual size (in meters)
