@@ -16,6 +16,7 @@ public:
     auto loadTilemap(const std::string& filename) -> bool;
     void render();
     void handleErrors();
+    void createChainForStaticTiles(const std::vector<b2Vec2>& points, const std::vector<std::pair<int, int>>& chainTiles, int mapHeight);
     void update(float deltaTime, const b2Vec2& characterPosition);
 
     void setScale(float newScale);
@@ -25,8 +26,11 @@ public:
     [[nodiscard]] auto getOffsetX() const -> float;
     [[nodiscard]] auto getOffsetY() const -> float;
 
+    void setShowPolygonOutlines(bool show);
+
 private:
     void createTile(const std::string& type, int x, int y, bool isDynamic);
+    void initializeDebugDraw();
 
     SDL_Renderer* renderer;
     b2WorldId worldId;
@@ -43,4 +47,5 @@ private:
     uint32_t tileHeight;
     
     std::vector<std::shared_ptr<Tile>> tiles;
+    bool showPolygonOutlines;
 };

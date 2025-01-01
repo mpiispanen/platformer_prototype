@@ -557,7 +557,7 @@ void Character::checkGroundContact() {
             b2ContactData contactData[10];
             int count = b2Body_GetContactData(bodyId, contactData, 10);
             for (int j = 0; j < count; ++j) {
-                if (contactData[j].manifold.normal.y < 0) {
+                if (contactData[j].manifold.normal.y > 0) {
                     isOnGround = true;
                     for (int k = 0; k < contactData[j].manifold.pointCount; ++k) {
                         contactPoints.push_back(contactData[j].manifold.points[k].point);
@@ -580,7 +580,7 @@ void Character::checkGroundContact() {
             int count = b2Body_GetContactData(bodyId, contactData, 10);
             bool groundContactFound = false;
             for (int j = 0; j < count; ++j) {
-                if (contactData[j].manifold.normal.y < 0) {
+                if (contactData[j].manifold.normal.y > 0) {
                     groundContactFound = true;
                     break;
                 }

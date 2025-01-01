@@ -14,6 +14,7 @@
 #include "Config.h"
 #include "DeveloperMenu.h"
 #include "GameSettingsObserver.h"
+#include "Box2DDebugDraw.h"
 #include "imgui.h"
 #include "imgui_impl_sdl3.h"
 #include "imgui_impl_sdlrenderer3.h"
@@ -120,6 +121,44 @@ auto main(int argc, char *argv[]) -> int {
     SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
     SDL_ShowWindow(window);
 
+    Box2DDebugDraw debugDraw(renderer, 1.0f);
+    b2DebugDraw myDraw = b2DefaultDebugDraw();
+    myDraw.context = &debugDraw;
+
+    myDraw.drawShapes = true;
+    myDraw.drawContacts = true;
+    myDraw.drawJoints = true;
+    myDraw.drawAABBs = true;
+
+    myDraw.DrawPolygon = [](const b2Vec2* vertices, int vertexCount, b2HexColor color, void* context) {
+        Box2DDebugDraw* renderer = static_cast<Box2DDebugDraw*>(context);
+        renderer->DrawPolygon(vertices, vertexCount, color, context);
+    };
+    myDraw.DrawSolidPolygon = [](b2Transform transform, const b2Vec2* vertices, int vertexCount, float radius, b2HexColor color, void* context) {
+        Box2DDebugDraw* renderer = static_cast<Box2DDebugDraw*>(context);
+        renderer->DrawSolidPolygon(transform, vertices, vertexCount, radius, color, context);
+    };
+    myDraw.DrawCircle = [](b2Vec2 center, float radius, b2HexColor color, void* context) {
+        Box2DDebugDraw* renderer = static_cast<Box2DDebugDraw*>(context);
+        renderer->DrawCircle(center, radius, color, context);
+    };
+    myDraw.DrawSolidCircle = [](b2Transform transform, float radius, b2HexColor color, void* context) {
+        Box2DDebugDraw* renderer = static_cast<Box2DDebugDraw*>(context);
+        renderer->DrawSolidCircle(transform, radius, color, context);
+    };
+    myDraw.DrawSegment = [](b2Vec2 p1, b2Vec2 p2, b2HexColor color, void* context) {
+        Box2DDebugDraw* renderer = static_cast<Box2DDebugDraw*>(context);
+        renderer->DrawSegment(p1, p2, color, context);
+    };
+    myDraw.DrawTransform = [](b2Transform transform, void* context) {
+        Box2DDebugDraw* renderer = static_cast<Box2DDebugDraw*>(context);
+        renderer->DrawTransform(transform, context);
+    };
+    myDraw.DrawPoint = [](b2Vec2 p, float size, b2HexColor color, void* context) {
+        Box2DDebugDraw* renderer = static_cast<Box2DDebugDraw*>(context);
+        renderer->DrawPoint(p, size, color, context);
+    };
+
     // Get the display scale factor
     float displayScale = SDL_GetWindowDisplayScale(window);
 
@@ -219,6 +258,21 @@ auto main(int argc, char *argv[]) -> int {
 
         // Render level
         level.render();
+
+        debugDraw.setScale(level.getScale());
+        debugDraw.setOffset(level.getOffsetX(), level.getOffsetY());
+        debugDraw.setWindowSize(windowWidth, windowHeight);
+
+        if (developerMenu.isBox2DDebugDrawEnabled()) {
+            myDraw.drawShapes = developerMenu.shouldDrawShapes();
+            myDraw.drawJoints = developerMenu.shouldDrawJoints();
+            myDraw.drawAABBs = developerMenu.shouldDrawAABBs();
+            myDraw.drawContacts = developerMenu.shouldDrawContactPoints();
+            myDraw.drawContactNormals = developerMenu.shouldDrawContactNormals();
+            myDraw.drawContactImpulses = developerMenu.shouldDrawContactImpulses();
+            myDraw.drawFrictionImpulses = developerMenu.shouldDrawFrictionImpulses();
+            b2World_Draw(worldId, &myDraw);
+        }
 
         // Render character
         character.render(level.getScale(), level.getOffsetX(), level.getOffsetY(), windowWidth, windowHeight);

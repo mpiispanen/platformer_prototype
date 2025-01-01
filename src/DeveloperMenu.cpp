@@ -27,7 +27,15 @@ DeveloperMenu::DeveloperMenu(const nlohmann::json& initialSettings)
       showDebugVisualizations(false),
       showContactPoints(false),
       showForceVisualizations(false),
-      maxContactPoints(initialSettings.value("maxContactPoints", 10)) { // Add this line
+      maxContactPoints(initialSettings.value("maxContactPoints", 10)),
+      enableBox2DDebugDraw(initialSettings.value("enableBox2DDebugDraw", false)),
+      drawShapes(initialSettings.value("drawShapes", true)),
+      drawJoints(initialSettings.value("drawJoints", true)),
+      drawAABBs(initialSettings.value("drawAABBs", false)),
+      drawContactPoints(initialSettings.value("drawContactPoints", false)),
+      drawContactNormals(initialSettings.value("drawContactNormals", false)),
+      drawContactImpulses(initialSettings.value("drawContactImpulses", false)),
+      drawFrictionImpulses(initialSettings.value("drawFrictionImpulses", false)) {
     loadSettings();
 }
 
@@ -104,6 +112,35 @@ void DeveloperMenu::render() {
     if (ImGui::SliderInt("Max Contact Points", &maxContactPoints, 1, 100)) {
         notifyObservers("maxContactPoints", static_cast<float>(maxContactPoints));
     }
+
+    // Box2D Debug Draw Options
+    if (ImGui::Checkbox("Enable Box2D Debug Draw", &enableBox2DDebugDraw)) {
+        notifyObservers("enableBox2DDebugDraw", enableBox2DDebugDraw);
+    }
+    if (enableBox2DDebugDraw) {
+        if (ImGui::Checkbox("Draw Shapes", &drawShapes)) {
+            notifyObservers("drawShapes", drawShapes);
+        }
+        if (ImGui::Checkbox("Draw Joints", &drawJoints)) {
+            notifyObservers("drawJoints", drawJoints);
+        }
+        if (ImGui::Checkbox("Draw AABBs", &drawAABBs)) {
+            notifyObservers("drawAABBs", drawAABBs);
+        }
+        if (ImGui::Checkbox("Draw Contact Points", &drawContactPoints)) {
+            notifyObservers("drawContactPoints", drawContactPoints);
+        }
+        if (ImGui::Checkbox("Draw Contact Normals", &drawContactNormals)) {
+            notifyObservers("drawContactNormals", drawContactNormals);
+        }
+        if (ImGui::Checkbox("Draw Contact Impulses", &drawContactImpulses)) {
+            notifyObservers("drawContactImpulses", drawContactImpulses);
+        }
+        if (ImGui::Checkbox("Draw Friction Impulses", &drawFrictionImpulses)) {
+            notifyObservers("drawFrictionImpulses", drawFrictionImpulses);
+        }
+    }
+
     ImGui::End();
 }
 
@@ -126,7 +163,15 @@ void DeveloperMenu::loadSettings() {
         showDebugVisualizations = settings.value("showDebugVisualizations", false);
         showContactPoints = settings.value("showContactPoints", false);
         showForceVisualizations = settings.value("showForceVisualizations", false);
-        maxContactPoints = settings.value("maxContactPoints", 10); 
+        maxContactPoints = settings.value("maxContactPoints", 10);
+        enableBox2DDebugDraw = settings.value("enableBox2DDebugDraw", false);
+        drawShapes = settings.value("drawShapes", true);
+        drawJoints = settings.value("drawJoints", true);
+        drawAABBs = settings.value("drawAABBs", false);
+        drawContactPoints = settings.value("drawContactPoints", false);
+        drawContactNormals = settings.value("drawContactNormals", false);
+        drawContactImpulses = settings.value("drawContactImpulses", false);
+        drawFrictionImpulses = settings.value("drawFrictionImpulses", false);
         prevGravity = gravity;
         prevCharacterSpeed = characterSpeed;
         prevJumpStrength = jumpStrength;
@@ -153,6 +198,14 @@ void DeveloperMenu::saveSettings() {
     settings["showContactPoints"] = showContactPoints;
     settings["showForceVisualizations"] = showForceVisualizations;
     settings["maxContactPoints"] = maxContactPoints;
+    settings["enableBox2DDebugDraw"] = enableBox2DDebugDraw;
+    settings["drawShapes"] = drawShapes;
+    settings["drawJoints"] = drawJoints;
+    settings["drawAABBs"] = drawAABBs;
+    settings["drawContactPoints"] = drawContactPoints;
+    settings["drawContactNormals"] = drawContactNormals;
+    settings["drawContactImpulses"] = drawContactImpulses;
+    settings["drawFrictionImpulses"] = drawFrictionImpulses;
     std::ofstream settingsFile("developer_menu_settings.json");
     if (settingsFile.is_open()) {
         settingsFile << settings.dump(4);
@@ -187,5 +240,13 @@ void DeveloperMenu::notifyAllObservers() {
     notifyObservers("showDebugVisualizations", showDebugVisualizations);
     notifyObservers("showContactPoints", showContactPoints);
     notifyObservers("showForceVisualizations", showForceVisualizations);
-    notifyObservers("maxContactPoints", static_cast<float>(maxContactPoints)); // Add this line
+    notifyObservers("maxContactPoints", static_cast<float>(maxContactPoints));
+    notifyObservers("enableBox2DDebugDraw", enableBox2DDebugDraw);
+    notifyObservers("drawShapes", drawShapes);
+    notifyObservers("drawJoints", drawJoints);
+    notifyObservers("drawAABBs", drawAABBs);
+    notifyObservers("drawContactPoints", drawContactPoints);
+    notifyObservers("drawContactNormals", drawContactNormals);
+    notifyObservers("drawContactImpulses", drawContactImpulses);
+    notifyObservers("drawFrictionImpulses", drawFrictionImpulses);
 }

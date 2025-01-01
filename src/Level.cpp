@@ -6,9 +6,11 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
+#include <queue>
+#include "Box2DDebugDraw.h"
 
 Level::Level(SDL_Renderer* renderer, b2WorldId worldId, std::string& assetDir, int windowWidth, int windowHeight, int tilesVertically)
-    : renderer(renderer), worldId(worldId), assetDir(assetDir), windowWidth(windowWidth), windowHeight(windowHeight), tilesVertically(tilesVertically) {
+    : renderer(renderer), worldId(worldId), assetDir(assetDir), windowWidth(windowWidth), windowHeight(windowHeight), tilesVertically(tilesVertically), showPolygonOutlines(false) {
     scale = 1.0F;
     offsetX = windowWidth / PIXELS_PER_METER / 2.0F;
     offsetY = windowHeight / PIXELS_PER_METER / 2.0F;
@@ -28,24 +30,65 @@ auto Level::loadTilemap(const std::string& filename) -> bool {
     file >> tilemap;
 
     int mapHeight = tilemap["height"];
+    int mapWidth = tilemap["width"];
     tileWidth = tilemap["tilewidth"];
     tileHeight = tilemap["tileheight"];
 
+    std::vector<std::vector<int>> tileData(mapHeight, std::vector<int>(mapWidth, 0));
     for (const auto& layer : tilemap["layers"]) {
         if (layer["type"] == "tilelayer") {
-            int width = layer["width"];
-            int height = layer["height"];
             const auto& data = layer["data"];
+            for (int y = 0; y < mapHeight; ++y) {
+                for (int x = 0; x < mapWidth; ++x) {
+                    tileData[y][x] = data[(y * mapWidth) + x];
+                }
+            }
+        }
+    }
 
-            for (int y = 0; y < height; ++y) {
-                for (int x = 0; x < width; ++x) {
-                    int tileId = data[(y * width) + x];
-                    if (tileId == 1) {
-                        createTile("ground", x * tileWidth, (height - y - 1) * tileHeight, false);
+    std::vector<std::vector<bool>> visited(mapHeight, std::vector<bool>(mapWidth, false));
+    for (int y = 0; y < mapHeight; ++y) {
+        for (int x = 0; x < mapWidth; ++x) {
+            if ((tileData[y][x] == 1 || tileData[y][x] == 2) && !visited[y][x]) {
+                std::vector<b2Vec2> chainPoints;
+                std::vector<std::pair<int, int>> chainTiles;
+                std::queue<std::pair<int, int>> q;
+                q.push({y, x});
+                visited[y][x] = true;
+
+                while (!q.empty()) {
+                    auto [cy, cx] = q.front();
+                    q.pop();
+
+                    float left = static_cast<float>(cx * tileWidth) / PIXELS_PER_METER;
+                    float right = static_cast<float>((cx + 1) * tileWidth) / PIXELS_PER_METER;
+                    float top = static_cast<float>((mapHeight - cy - 1) * tileHeight) / PIXELS_PER_METER;
+                    float bottom = static_cast<float>((mapHeight - cy) * tileHeight) / PIXELS_PER_METER;
+
+                    chainPoints.push_back(b2Vec2{left, top});
+                    chainPoints.push_back(b2Vec2{right, top});
+                    chainPoints.push_back(b2Vec2{right, bottom});
+                    chainPoints.push_back(b2Vec2{left, bottom});
+
+                    chainTiles.push_back({cy, cx});
+
+                    std::string tileType = (tileData[cy][cx] == 1) ? "ground" : "rectangle";
+                    createTile(tileType, cx * tileWidth, (mapHeight - cy - 1) * tileHeight, false);
+
+                    // Check adjacent tiles
+                    std::vector<std::pair<int, int>> directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+                    for (const auto& [dy, dx] : directions) {
+                        int ny = cy + dy;
+                        int nx = cx + dx;
+                        if (ny >= 0 && ny < mapHeight && nx >= 0 && nx < mapWidth && (tileData[ny][nx] == 1 || tileData[ny][nx] == 2) && !visited[ny][nx]) {
+                            q.push({ny, nx});
+                            visited[ny][nx] = true;
+                        }
                     }
-                    else if (tileId == 2) {
-                        createTile("rectangle", x * tileWidth, (height - y - 1) * tileHeight, false);
-                    }
+                }
+
+                if (!chainPoints.empty()) {
+                    createChainForStaticTiles(chainPoints, chainTiles, mapHeight);
                 }
             }
         }
@@ -58,6 +101,9 @@ auto Level::loadTilemap(const std::string& filename) -> bool {
 void Level::render() {
     for (const auto& tile : tiles) {
         tile->render(scale, offsetX, offsetY, windowWidth, windowHeight);
+        if (showPolygonOutlines) {
+            tile->renderPolygonOutline(scale, offsetX, offsetY, windowWidth, windowHeight);
+        }
     }
 }
 
@@ -70,14 +116,14 @@ void Level::setScale(float newScale) {
     spdlog::debug("Scale set to: {}", scale);
 }
 
+float Level::getScale() const {
+    return scale;
+}
+
 void Level::setViewportCenter(float centerX, float centerY) {
     offsetX = centerX;
     offsetY = centerY;
     spdlog::debug("Viewport center set to: ({}, {})", centerX, centerY);
-}
-
-auto Level::getScale() const -> float {
-    return scale;
 }
 
 auto Level::getOffsetX() const -> float {
@@ -88,30 +134,50 @@ auto Level::getOffsetY() const -> float {
     return offsetY;
 }
 
+void Level::setShowPolygonOutlines(bool show) {
+    showPolygonOutlines = show;
+}
+
 void Level::createTile(const std::string& type, int x, int y, bool isDynamic) {
     b2BodyDef bodyDef = b2DefaultBodyDef();
-    if (isDynamic) {
-        bodyDef.type = b2_dynamicBody;
-    }
+    bodyDef.type = isDynamic ? b2_dynamicBody : b2_staticBody;
     bodyDef.position = b2Vec2{static_cast<float>(x) / PIXELS_PER_METER, static_cast<float>(y) / PIXELS_PER_METER};
 
     b2BodyId bodyId = b2CreateBody(worldId, &bodyDef);
 
-    // Convert tile size from pixels to meters
-    float halfWidth = (tileWidth / 2.0F) / PIXELS_PER_METER;
-    float halfHeight = (tileHeight / 2.0F) / PIXELS_PER_METER;
-    b2Polygon box = b2MakeBox(halfWidth, halfHeight);
-    
-    b2ShapeDef shapeDef = b2DefaultShapeDef();
-    shapeDef.density = 1.0F;
-    shapeDef.friction = 0.3F;
-    b2ShapeId shapeId = b2CreatePolygonShape(bodyId, &shapeDef, &box);
+    // No need to create a rectangular shape for static tiles
+    b2ChainId chainId = b2_nullChainId;
+    b2ShapeId shapeId = b2_nullShapeId;
 
-    // Create and store tiles as shared pointers
-    std::shared_ptr<Tile> tile = std::make_shared<Tile>(renderer, type, bodyId, shapeId, tileWidth, tileHeight, assetDir);
+    std::shared_ptr<Tile> tile = std::make_shared<Tile>(renderer, type, bodyId, chainId, shapeId, tileWidth, tileHeight, assetDir, bodyDef.position.x, bodyDef.position.y);
     tiles.push_back(tile);
 
-    spdlog::debug("Tile created: type = {}, position = ({}, {}), isDynamic = {}", type, bodyDef.position.x, bodyDef.position.y, isDynamic);
+    spdlog::debug("Tile created: type = {}, position = ({}, {}), isDynamic = {}", type, x, y, isDynamic);
+}
+
+void Level::createChainForStaticTiles(const std::vector<b2Vec2>& points, const std::vector<std::pair<int, int>>& chainTiles, int mapHeight) {
+    b2BodyDef bodyDef = b2DefaultBodyDef();
+    bodyDef.type = b2_staticBody;
+
+    b2BodyId bodyId = b2CreateBody(worldId, &bodyDef);
+
+    b2ChainDef chainDef = b2DefaultChainDef();
+    chainDef.points = points.data();
+    chainDef.count = points.size();
+
+    b2ChainId chainId = b2CreateChain(bodyId, &chainDef);
+    b2ShapeId shapeId = b2_nullShapeId;
+
+    // Update the tiles to reference the chain shape
+    for (const auto& [cy, cx] : chainTiles) {
+        for (auto& tile : tiles) {
+            if (tile->getX() == cx * tileWidth && tile->getY() == (mapHeight - cy - 1) * tileHeight) {
+                tile = std::make_shared<Tile>(renderer, tile->getType(), bodyId, chainId, shapeId, tileWidth, tileHeight, assetDir, cx * tileWidth, (mapHeight - cy - 1) * tileHeight);
+            }
+        }
+    }
+
+    spdlog::debug("Chain created with {} points", points.size());
 }
 
 void Level::update(float deltaTime, const b2Vec2& characterPosition) {
