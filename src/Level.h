@@ -16,7 +16,9 @@ public:
     auto loadTilemap(const std::string& filename) -> bool;
     void render();
     void handleErrors();
-    void createChainForStaticTiles(const std::vector<b2Vec2>& points, const std::vector<std::pair<int, int>>& chainTiles, int mapHeight);
+    std::tuple<int, int, int> findStartingTile(const std::vector<std::pair<int, int>>& chainTiles, const std::vector<std::vector<bool>>& visited);
+    std::pair<std::vector<std::pair<int, int>>, std::vector<b2Vec2>> traceBorder(int startX, int startY, int startDir, const std::vector<std::pair<int, int>>& chainTiles, std::vector<std::vector<bool>>& visited, int mapHeight, int tileWidth, int tileHeight);
+    void createChainForStaticTiles(const std::vector<std::pair<int, int>> &chainTiles, int mapHeight);
     void update(float deltaTime, const b2Vec2& characterPosition);
 
     void setScale(float newScale);
@@ -30,6 +32,7 @@ public:
 
 private:
     void createTile(const std::string& type, int x, int y, bool isDynamic);
+    bool isSolidTile(int x, int y, const std::vector<std::pair<int, int>> &chainTiles);
     void initializeDebugDraw();
 
     SDL_Renderer* renderer;
