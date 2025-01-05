@@ -276,7 +276,7 @@ void Character::createBody() {
     b2ShapeDef shapeDef = b2DefaultShapeDef();
     shapeDef.density = 1.0F; // Set realistic density
     shapeDef.friction = 0.3F; // Set realistic friction
-    shapeDef.enableContactEvents = true; // Enable contact events
+    shapeDef.restitution = 0.0F; // Set realistic restitution
     b2CreatePolygonShape(bodyId, &shapeDef, &box);
 
     // Ensure gravity scale is set to 1.0
