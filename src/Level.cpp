@@ -301,6 +301,8 @@ void Level::createChainForStaticTiles(const std::vector<std::pair<int, int>>& ch
         b2ChainDef chainDef = b2DefaultChainDef();
         chainDef.points = outlineVertices.data();
         chainDef.count = outlineVertices.size();
+        chainDef.isLoop = true;
+        chainDef.friction = 5.0F;
         
         b2ChainId chainId = b2CreateChain(bodyId, &chainDef);
         b2ShapeId shapeId = b2_nullShapeId;

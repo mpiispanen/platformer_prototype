@@ -1,7 +1,7 @@
 {
     "airAcceleration": 5.0,
     "characterSpeed": 12.211999893188477,
-    "drawAABBs": false,
+    "drawAABBs": true,
     "drawContactImpulses": false,
     "drawContactNormals": true,
     "drawContactPoints": true,
