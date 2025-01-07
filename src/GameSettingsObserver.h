@@ -16,4 +16,6 @@ private:
     float minJumpHeight;
     float maxJumpHeight;
     float jumpCooldownDuration;
+
+    void handleDebugVisualizationSetting(const std::string& settingName, float newValue);
 };

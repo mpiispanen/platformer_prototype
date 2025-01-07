@@ -17,7 +17,7 @@ constexpr float TILE_SIZE = 32.0F;
 constexpr float LANDING_THRESHOLD = 0.2F; // Threshold time for landing animation
 
 Character::Character(SDL_Renderer* renderer, b2WorldId worldId, float x, float y, uint32_t windowWidth, uint32_t windowHeight, const nlohmann::json& characterConfig)
-    : renderer(renderer), worldId(worldId), windowWidth(windowWidth), windowHeight(windowHeight), showDebug(false), isOnGround(false), jumpCooldownTimer(0.0F), elapsedTime(0.0F), timeSinceLastGroundContact(0.0F) {
+    : renderer(renderer), worldId(worldId), windowWidth(windowWidth), windowHeight(windowHeight), showDebug(false), isOnGround(false), jumpCooldownTimer(0.0F), elapsedTime(0.0F), timeSinceLastGroundContact(0.0F), showDebugRectangles(false), showContactPoints(false), showForceVectors(false), debugColor({255, 0, 0, 255}), maxContactPoints(10) { // Initialize maxContactPoints
     position = {x, y};
     
     spdlog::debug("Initializing character at position ({}, {})", position.x, position.y);
@@ -117,6 +117,9 @@ void Character::update(float deltaTime) {
     }
 
     wasOnGround = isOnGround;
+
+    // Update debug color based on character state, velocity, and other properties
+    updateDebugColor();
 }
 
 void Character::render(float scale, float offsetX, float offsetY, uint32_t windowWidth, uint32_t windowHeight) {
@@ -137,6 +140,44 @@ void Character::render(float scale, float offsetX, float offsetY, uint32_t windo
 
         };
         SDL_RenderTextureRotated(renderer, currentFrame, nullptr, &dstRect, 0.0, nullptr, currentAnimation->getFlip());
+    }
+
+    // Draw debug rectangles around the character
+    if (showDebugRectangles) {
+        SDL_SetRenderDrawColor(renderer, debugColor.r, debugColor.g, debugColor.b, debugColor.a);
+        SDL_FRect debugRect = {
+            screenPos.x - ((characterRectangle.w) / 2 * scale),
+            screenPos.y - ((characterRectangle.h) / 2 * scale),
+            characterRectangle.w * scale,
+            characterRectangle.h * scale
+        };
+        SDL_RenderRect(renderer, &debugRect);
+    }
+
+    if (showForceVectors) {
+        b2Vec2 force = b2Body_GetLinearVelocity(bodyId);
+        SDL_FPoint forceEndPos = {
+            screenPos.x + (force.x * scale),
+            screenPos.y - (force.y * scale)
+        };
+        SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255); // Blue for gravity
+        SDL_RenderLine(renderer, screenPos.x, screenPos.y, forceEndPos.x, forceEndPos.y);
+    }
+
+    if (showContactPoints) {
+        const int pointSize = 5; 
+        for (const auto& contactPoint : contactPoints) {
+            SDL_FPoint contactScreenPos = Box2DToSDL(contactPoint, scale, offsetX, offsetY, windowWidth, windowHeight);
+            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // Red for contact points
+
+            SDL_FRect contactRect = {
+                contactScreenPos.x - pointSize / 2,
+                contactScreenPos.y - pointSize / 2,
+                pointSize,
+                pointSize
+            };
+            SDL_RenderFillRect(renderer, &contactRect);
+        }
     }
 }
 
@@ -168,6 +209,18 @@ void Character::setJumpStrength(float strength) {
 // TODO: Should be used to disable jumping too often
 void Character::setJumpCooldownDuration(float duration) {
     jumpCooldownDuration = duration;
+}
+
+void Character::setShowDebugRectangles(bool value) {
+    showDebugRectangles = value;
+}
+
+void Character::setShowContactPoints(bool value) {
+    showContactPoints = value;
+}
+
+void Character::setShowForceVectors(bool value) {
+    showForceVectors = value;
 }
 
 void Character::handleJumpInput(bool keyDown) {
@@ -211,21 +264,35 @@ void Character::createBody() {
     b2BodyDef bodyDef = b2DefaultBodyDef();
     bodyDef.type = b2_dynamicBody;
     bodyDef.position = position;
-
+    bodyDef.fixedRotation = true;
+    
     bodyId = b2CreateBody(worldId, &bodyDef);
 
-    // Scale physics body to match visual size (in meters)
     float halfWidth = (characterRectangle.w) / (2.0F * PIXELS_PER_METER);
     float halfHeight = (characterRectangle.h) / (2.0F * PIXELS_PER_METER);
-    b2Polygon box = b2MakeBox(halfWidth, halfHeight);
+    float cornerCut = 0.2F * halfWidth;
+
+    b2Vec2 vertices[] = {
+        { -halfWidth + cornerCut, -halfHeight },
+        { halfWidth - cornerCut, -halfHeight },
+        { halfWidth, -halfHeight + cornerCut },
+        { halfWidth, halfHeight - cornerCut },
+        { halfWidth - cornerCut, halfHeight },
+        { -halfWidth + cornerCut, halfHeight },
+        { -halfWidth, halfHeight - cornerCut },
+        { -halfWidth, -halfHeight + cornerCut }
+    };
+
+    b2Hull hull = b2ComputeHull(vertices, 8);
+    float radius = 0.0f;
+    b2Polygon roundedBox = b2MakePolygon(&hull, radius);
 
     b2ShapeDef shapeDef = b2DefaultShapeDef();
-    shapeDef.density = 1.0F; // Set realistic density
-    shapeDef.friction = 0.3F; // Set realistic friction
-    shapeDef.enableContactEvents = true; // Enable contact events
-    b2CreatePolygonShape(bodyId, &shapeDef, &box);
+    shapeDef.density = 1.0F;
+    shapeDef.friction = 0.3F;
+    shapeDef.restitution = 0.0F;
+    b2CreatePolygonShape(bodyId, &shapeDef, &roundedBox);
 
-    // Ensure gravity scale is set to 1.0
     b2Body_SetGravityScale(bodyId, 1.0F);
 }
 
@@ -503,13 +570,18 @@ void Character::checkGroundContact() {
             b2ContactData contactData[10];
             int count = b2Body_GetContactData(bodyId, contactData, 10);
             for (int j = 0; j < count; ++j) {
-                if (contactData[j].manifold.normal.y < 0) {
+                if (contactData[j].manifold.normal.y > 0) {
                     isOnGround = true;
+                    for (int k = 0; k < contactData[j].manifold.pointCount; ++k) {
+                        contactPoints.push_back(contactData[j].manifold.points[k].point);
+                    }
                     break;
                 }
             }
         }
     }
+
+    setMaxContactPoints(maxContactPoints);
 
     // Check end contact events
     for (int i = 0; i < contactEvents.endCount; ++i) {
@@ -521,7 +593,7 @@ void Character::checkGroundContact() {
             int count = b2Body_GetContactData(bodyId, contactData, 10);
             bool groundContactFound = false;
             for (int j = 0; j < count; ++j) {
-                if (contactData[j].manifold.normal.y < 0) {
+                if (contactData[j].manifold.normal.y > 0) {
                     groundContactFound = true;
                     break;
                 }
@@ -530,5 +602,21 @@ void Character::checkGroundContact() {
                 isOnGround = false;
             }
         }
+    }
+}
+
+void Character::updateDebugColor() {
+    // Update the debug color based on character state, velocity, and other properties
+    if (isOnGround) {
+        debugColor = {0, 255, 0, 255}; // Green for on ground
+    } else {
+        debugColor = {255, 0, 0, 255}; // Red for in the air
+    }
+}
+
+void Character::setMaxContactPoints(int maxPoints) {
+    maxContactPoints = maxPoints;
+    while (contactPoints.size() > maxContactPoints) {
+        contactPoints.pop_front();
     }
 }

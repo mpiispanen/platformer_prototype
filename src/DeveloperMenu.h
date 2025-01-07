@@ -24,6 +24,16 @@ public:
     void notifyObservers(const std::string& settingName, float newValue);
     void notifyAllObservers();
 
+    // Public getter methods for Box2D debug draw settings
+    bool isBox2DDebugDrawEnabled() const { return enableBox2DDebugDraw; }
+    bool shouldDrawShapes() const { return drawShapes; }
+    bool shouldDrawJoints() const { return drawJoints; }
+    bool shouldDrawAABBs() const { return drawAABBs; }
+    bool shouldDrawContactPoints() const { return drawContactPoints; }
+    bool shouldDrawContactNormals() const { return drawContactNormals; }
+    bool shouldDrawContactImpulses() const { return drawContactImpulses; }
+    bool shouldDrawFrictionImpulses() const { return drawFrictionImpulses; }
+
 private:
     bool isVisible;
     float gravity;
@@ -52,4 +62,18 @@ private:
     float prevGroundAcceleration;
     float prevAirAcceleration;
     float prevMaxWalkingSpeed;
+
+    bool showDebugVisualizations;
+    bool showContactPoints;
+    bool showForceVisualizations;
+    int maxContactPoints;
+
+    bool enableBox2DDebugDraw;
+    bool drawShapes;
+    bool drawJoints;
+    bool drawAABBs;
+    bool drawContactPoints;
+    bool drawContactNormals;
+    bool drawContactImpulses;
+    bool drawFrictionImpulses;
 };

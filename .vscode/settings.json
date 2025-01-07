@@ -65,6 +65,10 @@
         "variant": "cpp",
         "vector": "cpp",
         "type_traits": "cpp",
-        "__availability": "cpp"
+        "__availability": "cpp",
+        "cinttypes": "cpp",
+        "condition_variable": "cpp",
+        "queue": "cpp",
+        "source_location": "cpp"
     }
 }

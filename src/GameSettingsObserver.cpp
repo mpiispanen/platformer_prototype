@@ -19,5 +19,29 @@ void GameSettingsObserver::onSettingChanged(const std::string& settingName, floa
         character.setAirAcceleration(newValue);
     } else if (settingName == "maxWalkingSpeed") {
         character.setMaxWalkingSpeed(newValue);
+    } else if (settingName == "showDebugVisualizations") {
+        character.setShowDebugRectangles(static_cast<bool>(newValue));
+    } else if (settingName == "showContactPoints") {
+        character.setShowContactPoints(static_cast<bool>(newValue));
+    } else if (settingName == "showForceVisualizations") {
+        character.setShowForceVectors(static_cast<bool>(newValue));
+    } else if (settingName == "maxContactPoints") {
+        character.setMaxContactPoints(static_cast<int>(newValue));
+    } else if (settingName == "enableBox2DDebugDraw") {
+        // Handle enabling/disabling Box2D debug draw
+    } else if (settingName == "drawShapes") {
+        // Handle drawing shapes
+    } else if (settingName == "drawJoints") {
+        // Handle drawing joints
+    } else if (settingName == "drawAABBs") {
+        // Handle drawing AABBs
+    } else if (settingName == "drawContactPoints") {
+        // Handle drawing contact points
+    } else if (settingName == "drawContactNormals") {
+        // Handle drawing contact normals
+    } else if (settingName == "drawContactImpulses") {
+        // Handle drawing contact impulses
+    } else if (settingName == "drawFrictionImpulses") {
+        // Handle drawing friction impulses
     }
 }
