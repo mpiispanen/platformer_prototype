@@ -268,18 +268,31 @@ void Character::createBody() {
     
     bodyId = b2CreateBody(worldId, &bodyDef);
 
-    // Scale physics body to match visual size (in meters)
     float halfWidth = (characterRectangle.w) / (2.0F * PIXELS_PER_METER);
     float halfHeight = (characterRectangle.h) / (2.0F * PIXELS_PER_METER);
-    b2Polygon box = b2MakeBox(halfWidth, halfHeight);
+    float cornerCut = 0.2F * halfWidth;
+
+    b2Vec2 vertices[] = {
+        { -halfWidth + cornerCut, -halfHeight },
+        { halfWidth - cornerCut, -halfHeight },
+        { halfWidth, -halfHeight + cornerCut },
+        { halfWidth, halfHeight - cornerCut },
+        { halfWidth - cornerCut, halfHeight },
+        { -halfWidth + cornerCut, halfHeight },
+        { -halfWidth, halfHeight - cornerCut },
+        { -halfWidth, -halfHeight + cornerCut }
+    };
+
+    b2Hull hull = b2ComputeHull(vertices, 8);
+    float radius = 0.0f;
+    b2Polygon roundedBox = b2MakePolygon(&hull, radius);
 
     b2ShapeDef shapeDef = b2DefaultShapeDef();
-    shapeDef.density = 1.0F; // Set realistic density
-    shapeDef.friction = 0.3F; // Set realistic friction
-    shapeDef.restitution = 0.0F; // Set realistic restitution
-    b2CreatePolygonShape(bodyId, &shapeDef, &box);
+    shapeDef.density = 1.0F;
+    shapeDef.friction = 0.3F;
+    shapeDef.restitution = 0.0F;
+    b2CreatePolygonShape(bodyId, &shapeDef, &roundedBox);
 
-    // Ensure gravity scale is set to 1.0
     b2Body_SetGravityScale(bodyId, 1.0F);
 }
 
