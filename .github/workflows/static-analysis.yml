@@ -1,0 +1,44 @@
+name: Static Analysis
+
+on: [push, pull_request]
+
+jobs:
+  static-analysis:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        submodules: true
+
+    - name: Update submodules
+      run: git submodule update --init --recursive
+
+    - name: Install X11 libraries
+      run: sudo apt-get update && sudo apt-get install -y libx11-dev libxext-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev
+
+    - name: Set up SDL
+      uses: libsdl-org/setup-sdl@main
+
+    - name: Set up clang-tidy
+      run: sudo apt-get update && sudo apt-get install -y clang-tidy
+
+    - name: Configure CMake with clang-tidy
+      run: cmake -B build -S . -DENABLE_CLANG_TIDY=ON
+
+    - name: Run clang-tidy and Generate Report
+      run: cmake --build build --target run-clang-tidy
+
+    - name: Upload Clang-Tidy Report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: clang-tidy-report
+        path: build/clang-tidy-fixes.yaml
+
+    - name: Fail on Clang-Tidy Issues
+      if: failure()
+      run: |
+        echo "Clang-Tidy detected issues. Failing the build."
+        exit 1
