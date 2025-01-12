@@ -1,5 +1,11 @@
 {
     "airAcceleration": 5.0,
+    "ambientLightColor": {
+        "b": 255.0,
+        "g": 255.0,
+        "r": 255.0
+    },
+    "ambientLightIntensity": 0.5,
     "characterSpeed": 17.451000213623047,
     "drawAABBs": true,
     "drawContactImpulses": false,
