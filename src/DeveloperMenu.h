@@ -76,4 +76,8 @@ private:
     bool drawContactNormals;
     bool drawContactImpulses;
     bool drawFrictionImpulses;
+
+    // Ambient light properties
+    float ambientLightIntensity;
+    ImVec4 ambientLightColor;
 };

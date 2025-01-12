@@ -18,6 +18,7 @@
 #include "imgui.h"
 #include "imgui_impl_sdl3.h"
 #include "imgui_impl_sdlrenderer3.h"
+#include "LightGrid.h"
 
 // Named constants
 constexpr int WINDOW_WIDTH = 800;
@@ -186,6 +187,9 @@ auto main(int argc, char *argv[]) -> int {
     Character character(renderer, worldId, 15.0F, 20.0F, windowWidth, windowHeight, characterConfig);
     character.setMaxWalkingSpeed(maxWalkingSpeed);
 
+    // Create LightGrid object
+    LightGrid lightGrid(windowWidth, windowHeight, level.getScale(), level.getOffsetX(), level.getOffsetY());
+
     // Initialize ImGui
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
@@ -252,6 +256,13 @@ auto main(int argc, char *argv[]) -> int {
         character.checkGroundContact();
         character.update(TIME_STEP);
 
+        // Update light grid
+        lightGrid.resetLightGrid();
+        lightGrid.addPointLightSource(character.getPosition().x, character.getPosition().y, 100.0f, {255, 255, 255});
+        lightGrid.propagateLight();
+        lightGrid.dissipateLight();
+        lightGrid.convertToTexture(renderer);
+
         // Game logic and rendering
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, COLOR_ALPHA); // Clear with black color
         SDL_RenderClear(renderer);
@@ -276,6 +287,9 @@ auto main(int argc, char *argv[]) -> int {
 
         // Render character
         character.render(level.getScale(), level.getOffsetX(), level.getOffsetY(), windowWidth, windowHeight);
+
+        // Render light texture
+        SDL_RenderTexture(renderer, lightGrid.getLightTexture(), nullptr, nullptr);
 
         // Reset SDL renderer transformations before rendering ImGui
         SDL_SetRenderScale(renderer, displayScale, displayScale);

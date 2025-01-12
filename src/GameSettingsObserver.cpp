@@ -43,5 +43,11 @@ void GameSettingsObserver::onSettingChanged(const std::string& settingName, floa
         // Handle drawing contact impulses
     } else if (settingName == "drawFrictionImpulses") {
         // Handle drawing friction impulses
+    } else if (settingName == "ambientLightIntensity") {
+        ambientLightIntensity = newValue;
+        // Update the light grid with the new ambient light intensity
+    } else if (settingName == "ambientLightColor") {
+        ambientLightColor = SDL_Color{static_cast<Uint8>(newValue), static_cast<Uint8>(newValue), static_cast<Uint8>(newValue), 255};
+        // Update the light grid with the new ambient light color
     }
 }

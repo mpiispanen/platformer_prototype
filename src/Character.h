@@ -36,6 +36,9 @@ public:
     void setShowForceVectors(bool value);
     void setMaxContactPoints(int maxPoints); 
 
+    b2Vec2 getPosition() const;
+
+
 private:
     SDL_Renderer* renderer;
     b2WorldId worldId;

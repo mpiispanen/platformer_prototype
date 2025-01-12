@@ -18,4 +18,8 @@ private:
     float jumpCooldownDuration;
 
     void handleDebugVisualizationSetting(const std::string& settingName, float newValue);
+
+    // Ambient light properties
+    float ambientLightIntensity;
+    SDL_Color ambientLightColor;
 };

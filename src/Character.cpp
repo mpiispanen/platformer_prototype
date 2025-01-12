@@ -620,3 +620,7 @@ void Character::setMaxContactPoints(int maxPoints) {
         contactPoints.pop_front();
     }
 }
+
+b2Vec2 Character::getPosition() const {
+    return position;
+}

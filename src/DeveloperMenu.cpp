@@ -35,7 +35,16 @@ DeveloperMenu::DeveloperMenu(const nlohmann::json& initialSettings)
       drawContactPoints(initialSettings.value("drawContactPoints", false)),
       drawContactNormals(initialSettings.value("drawContactNormals", false)),
       drawContactImpulses(initialSettings.value("drawContactImpulses", false)),
-      drawFrictionImpulses(initialSettings.value("drawFrictionImpulses", false)) {
+      drawFrictionImpulses(initialSettings.value("drawFrictionImpulses", false)),
+      ambientLightIntensity(initialSettings.value("ambientLightIntensity", 0.5f)),
+      ambientLightColor(1.0f, 1.0f, 1.0f, 1.0f) {
+    if (initialSettings.contains("ambientLightColor")) {
+        const auto& color = initialSettings["ambientLightColor"];
+        ambientLightColor.x = color.value("r", 1.0f);
+        ambientLightColor.y = color.value("g", 1.0f);
+        ambientLightColor.z = color.value("b", 1.0f);
+    }
+
     loadSettings();
 }
 
@@ -141,6 +150,18 @@ void DeveloperMenu::render() {
         }
     }
 
+    // Ambient Light Settings
+    ImGui::Text("Ambient Light Intensity: %.2f", ambientLightIntensity);
+    if (ImGui::SliderFloat("Ambient Light Intensity", &ambientLightIntensity, 0.0f, 1.0f)) {
+        notifyObservers("ambientLightIntensity", ambientLightIntensity);
+    }
+    
+    if (ImGui::ColorEdit3("Ambient Light Color", (float*)&ambientLightColor)) {
+        notifyObservers("ambientLightColor", ambientLightColor.x);
+        notifyObservers("ambientLightColor", ambientLightColor.y);
+        notifyObservers("ambientLightColor", ambientLightColor.z);
+    }
+
     ImGui::End();
 }
 
@@ -172,6 +193,8 @@ void DeveloperMenu::loadSettings() {
         drawContactNormals = settings.value("drawContactNormals", false);
         drawContactImpulses = settings.value("drawContactImpulses", false);
         drawFrictionImpulses = settings.value("drawFrictionImpulses", false);
+        ambientLightIntensity = settings.value("ambientLightIntensity", 0.5f);
+        ambientLightColor = ImVec4(settings["ambientLightColor"]["r"], settings["ambientLightColor"]["g"], settings["ambientLightColor"]["b"], 1.0f);
         prevGravity = gravity;
         prevCharacterSpeed = characterSpeed;
         prevJumpStrength = jumpStrength;
@@ -206,6 +229,10 @@ void DeveloperMenu::saveSettings() {
     settings["drawContactNormals"] = drawContactNormals;
     settings["drawContactImpulses"] = drawContactImpulses;
     settings["drawFrictionImpulses"] = drawFrictionImpulses;
+    settings["ambientLightIntensity"] = ambientLightIntensity;
+    settings["ambientLightColor"]["r"] = ambientLightColor.x;
+    settings["ambientLightColor"]["g"] = ambientLightColor.y;
+    settings["ambientLightColor"]["b"] = ambientLightColor.z;
     std::ofstream settingsFile("developer_menu_settings.json");
     if (settingsFile.is_open()) {
         settingsFile << settings.dump(4);
@@ -249,4 +276,8 @@ void DeveloperMenu::notifyAllObservers() {
     notifyObservers("drawContactNormals", drawContactNormals);
     notifyObservers("drawContactImpulses", drawContactImpulses);
     notifyObservers("drawFrictionImpulses", drawFrictionImpulses);
+    notifyObservers("ambientLightIntensity", ambientLightIntensity);
+    notifyObservers("ambientLightColor", ambientLightColor.x);
+    notifyObservers("ambientLightColor", ambientLightColor.y);
+    notifyObservers("ambientLightColor", ambientLightColor.z);
 }
