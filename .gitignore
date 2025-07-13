@@ -32,6 +32,19 @@
 # Developer menu settings
 developer_menu_settings.json
 
+# Node modules
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Image regression test output (temporary files)
+tests/image-regression/output/
+tests/image-regression/diff/
+
+# Keep reference images for comparison
+!tests/image-regression/reference/
+
 # Other files to ignore
 *.swp
 *~

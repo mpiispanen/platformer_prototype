@@ -22,6 +22,7 @@ To build the project, you need to have the following dependencies installed:
 
 - A C++ compiler (e.g., g++ or clang++)
 - CMake
+- Node.js (for image regression testing)
 
 1. Create a build directory:
    ```
@@ -38,6 +39,22 @@ To build the project, you need to have the following dependencies installed:
    ```
    make
    ```
+
+## Testing
+
+### Image Regression Testing
+
+The project includes automated visual regression testing that captures screenshots and compares them against reference images to detect visual changes.
+
+```bash
+# Install Node.js dependencies
+npm install
+
+# Run image regression tests
+npm run test:image
+```
+
+See [docs/IMAGE_REGRESSION_TESTING.md](docs/IMAGE_REGRESSION_TESTING.md) for detailed documentation.
 
 ## Command-Line Arguments
 

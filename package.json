@@ -1,0 +1,20 @@
+{
+  "name": "platformer_prototype",
+  "version": "1.0.0",
+  "description": "[![Build Linux](https://github.com/mpiispanen/platformer_prototype/actions/workflows/ci-linux.yml/badge.svg)](https://github.com/mpiispanen/platformer_prototype/actions/workflows/ci-linux.yml) [![Build Windows](https://github.com/mpiispanen/platformer_prototype/actions/workflows/ci-windows.yml/badge.svg)](https://github.com/mpiispanen/platformer_prototype/actions/workflows/ci-windows.yml) [![Static Analysis](https://github.com/mpiispanen/platformer_prototype/actions/workflows/static-analysis.yml/badge.svg)](https://github.com/mpiispanen/platformer_prototype/actions/workflows/static-analysis.yml)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:image": "node tests/image-regression/image-test.js",
+    "test:image:update": "node tests/image-regression/image-test.js --update-references",
+    "build": "cd build && make -j4"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "jimp": "^1.6.0",
+    "pixelmatch": "^7.1.0",
+    "png-js": "^1.0.0"
+  }
+}

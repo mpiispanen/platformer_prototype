@@ -15,6 +15,7 @@
 #include "DeveloperMenu.h"
 #include "GameSettingsObserver.h"
 #include "Box2DDebugDraw.h"
+#include "ScreenshotCapture.h"
 #include "imgui.h"
 #include "imgui_impl_sdl3.h"
 #include "imgui_impl_sdlrenderer3.h"
@@ -38,6 +39,9 @@ auto main(int argc, char *argv[]) -> int {
     int windowHeight = WINDOW_HEIGHT;
     bool fullscreen = DEFAULT_FULLSCREEN;
     bool developerMode = false;
+    bool testMode = false;
+    std::string screenshotFilename;
+    int screenshotDelay = 1000; // ms to wait before taking screenshot
     std::string assetDir = "assets"; // Default asset directory
     std::string levelName = "test_level"; // Default level name
 
@@ -50,6 +54,9 @@ auto main(int argc, char *argv[]) -> int {
             ("a,assetDir", "Asset directory", cxxopts::value<std::string>(assetDir)->default_value("assets"))
             ("l,levelName", "Level name", cxxopts::value<std::string>(levelName)->default_value("test_level"))
             ("d,developerMode", "Developer mode", cxxopts::value<bool>(developerMode)->default_value("false"))
+            ("t,testMode", "Test mode for automated testing", cxxopts::value<bool>(testMode)->default_value("false"))
+            ("screenshot", "Screenshot filename (enables test mode)", cxxopts::value<std::string>(screenshotFilename))
+            ("screenshot-delay", "Delay before taking screenshot in ms", cxxopts::value<int>(screenshotDelay)->default_value("1000"))
             ("help", "Print help");
 
         auto result = options.parse(argc, argv);
@@ -57,6 +64,11 @@ auto main(int argc, char *argv[]) -> int {
         if (result.count("help") != 0U) {
             std::cout << options.help() << std::endl;
             return 0;
+        }
+
+        // If screenshot filename is provided, enable test mode
+        if (result.count("screenshot") != 0U) {
+            testMode = true;
         }
     }
     catch (const cxxopts::exceptions::exception &e) {
@@ -211,6 +223,10 @@ auto main(int argc, char *argv[]) -> int {
     bool showDebugWindow = false;
     constexpr int subStepCount = 8;
 
+    // Screenshot capture state for test mode
+    bool screenshotTaken = false;
+    Uint64 startTime = SDL_GetTicks();
+
     while (running) {
         // Handle events
         SDL_Event event;
@@ -293,7 +309,32 @@ auto main(int argc, char *argv[]) -> int {
         // Reset SDL renderer scale to 1.0 for next frame
         SDL_SetRenderScale(renderer, 1.0f, 1.0f);
 
+        // Handle screenshot capture for test mode
+        if (testMode && !screenshotTaken && !screenshotFilename.empty()) {
+            Uint64 currentTime = SDL_GetTicks();
+            if (currentTime - startTime >= static_cast<Uint64>(screenshotDelay)) {
+                spdlog::info("Taking screenshot: {}", screenshotFilename);
+                if (ScreenshotCapture::saveScreenshot(renderer, screenshotFilename, windowWidth, windowHeight)) {
+                    screenshotTaken = true;
+                    spdlog::info("Screenshot captured successfully, exiting...");
+                    running = false; // Exit after taking screenshot
+                } else {
+                    spdlog::error("Failed to capture screenshot");
+                    running = false;
+                }
+            }
+        }
+
         SDL_RenderPresent(renderer);
+
+        // Exit test mode after a reasonable time if no screenshot was requested
+        if (testMode && screenshotFilename.empty()) {
+            Uint64 currentTime = SDL_GetTicks();
+            if (currentTime - startTime >= 5000) { // 5 seconds max for test mode
+                spdlog::info("Test mode timeout, exiting...");
+                running = false;
+            }
+        }
     }
     spdlog::info("Exiting main game loop");
 
